@@ -1,0 +1,79 @@
+╔════════════════════════════════════════════════════════════════╗
+║           FINAL FIX - CORRUPTED DATABASE CLEANUP               ║
+╚════════════════════════════════════════════════════════════════╝
+
+Follow these steps EXACTLY:
+
+═══════════════════════════════════════════════════════════════════
+STEP 1: STOP MYSQL
+═══════════════════════════════════════════════════════════════════
+
+1. Open XAMPP Control Panel
+2. Click "Stop" next to MySQL
+3. Wait until it shows "Stopped"
+
+═══════════════════════════════════════════════════════════════════
+STEP 2: DELETE CORRUPTED DATABASE FOLDER
+═══════════════════════════════════════════════════════════════════
+
+1. Open File Explorer
+2. Navigate to: C:\xampp\mysql\data\
+3. Find folder named "pangi"
+4. DELETE the entire "pangi" folder
+5. If it says "file in use", make sure MySQL is stopped
+
+═══════════════════════════════════════════════════════════════════
+STEP 3: START MYSQL
+═══════════════════════════════════════════════════════════════════
+
+1. Go back to XAMPP Control Panel
+2. Click "Start" next to MySQL
+3. Wait until it shows "Running" (green)
+
+═══════════════════════════════════════════════════════════════════
+STEP 4: CREATE FRESH DATABASE
+═══════════════════════════════════════════════════════════════════
+
+1. Open browser: http://localhost/phpmyadmin
+2. Click "New" in left sidebar
+3. Database name: pangi
+4. Collation: utf8mb4_unicode_ci
+5. Click "Create"
+
+═══════════════════════════════════════════════════════════════════
+STEP 5: RUN THE SQL FILE
+═══════════════════════════════════════════════════════════════════
+
+1. Select "pangi" database in left sidebar
+2. Click "SQL" tab
+3. Open file: CREATE_ALL_TABLES.sql
+4. Copy ALL content (Ctrl+A, Ctrl+C)
+5. Paste in SQL box (Ctrl+V)
+6. Click "Go" button
+7. Wait for success!
+
+═══════════════════════════════════════════════════════════════════
+STEP 6: VERIFY
+═══════════════════════════════════════════════════════════════════
+
+Check if these tables exist:
+✓ users
+✓ households
+✓ residents
+✓ audit_logs
+✓ password_reset_tokens
+✓ migrations
+✓ puroks
+
+═══════════════════════════════════════════════════════════════════
+STEP 7: LOGIN
+═══════════════════════════════════════════════════════════════════
+
+Go to: http://127.0.0.1:8000/login
+
+Email: secretary@pangi.gov
+Password: password
+
+DONE! ✓
+
+═══════════════════════════════════════════════════════════════════

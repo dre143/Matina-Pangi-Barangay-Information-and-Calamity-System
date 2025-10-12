@@ -1,0 +1,171 @@
+╔════════════════════════════════════════════════════════════════╗
+║           MANUAL DATABASE SETUP - STEP BY STEP                 ║
+║         (Use this when migrations don't work)                  ║
+╚════════════════════════════════════════════════════════════════╝
+
+Since migrations aren't working, follow these simple steps:
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 1: Open phpMyAdmin
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open your web browser
+2. Go to: http://localhost/phpmyadmin
+3. You should see the phpMyAdmin interface
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 2: Create Database (if not exists)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Look at the left sidebar
+2. Click "New" at the top
+3. Database name: pangi
+4. Collation: utf8mb4_unicode_ci
+5. Click "Create" button
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 3: Select the Database
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. In the left sidebar, click on "pangi" database
+2. The database should now be selected (highlighted)
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 4: Open SQL Tab
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Look at the top menu
+2. Click on "SQL" tab
+3. You'll see a large text box
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 5: Open the SQL File
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open this file in Notepad:
+   
+   CREATE_ALL_TABLES.sql
+
+2. Press Ctrl+A (Select All)
+3. Press Ctrl+C (Copy)
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 6: Paste and Execute
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go back to phpMyAdmin SQL tab
+2. Click in the large text box
+3. Press Ctrl+V (Paste)
+4. You should see all the SQL code
+5. Click "Go" button at the bottom right
+6. Wait for it to complete (may take 10-20 seconds)
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 7: Verify Success
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You should see:
+✓ Green checkmark or success message
+✓ "Setup Complete!" message
+✓ "2 rows inserted" for users
+
+In the left sidebar, you should now see these tables:
+✓ users
+✓ households
+✓ residents
+✓ audit_logs
+✓ password_reset_tokens
+✓ migrations
+✓ puroks
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 8: Verify Users Created
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. In left sidebar, click on "users" table
+2. Click "Browse" tab
+3. You should see 2 users:
+   - Barangay Secretary (secretary@pangi.gov)
+   - Barangay Staff (staff@pangi.gov)
+
+═══════════════════════════════════════════════════════════════════
+
+STEP 9: Login to Your System!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: http://127.0.0.1:8000/login
+
+2. Login with Secretary account:
+   Email: secretary@pangi.gov
+   Password: password
+
+3. You should be logged in successfully! ✓
+
+═══════════════════════════════════════════════════════════════════
+
+🎉 DONE! Your system is now ready to use!
+
+═══════════════════════════════════════════════════════════════════
+
+📋 WHAT YOU CREATED:
+
+✓ Database: pangi
+✓ 7 tables (users, households, residents, etc.)
+✓ 2 user accounts (secretary and staff)
+✓ All foreign key relationships
+✓ Complete database structure
+
+═══════════════════════════════════════════════════════════════════
+
+🔑 LOGIN CREDENTIALS:
+
+Secretary Account (Full Access):
+   Email: secretary@pangi.gov
+   Password: password
+   
+Staff Account (Limited Access):
+   Email: staff@pangi.gov
+   Password: password
+
+═══════════════════════════════════════════════════════════════════
+
+⚠️ TROUBLESHOOTING:
+
+Problem: "Error in SQL query"
+Solution: Make sure you copied the ENTIRE SQL file
+          Try again, make sure to select ALL content
+
+Problem: "Foreign key constraint fails"
+Solution: Make sure database is empty
+          Or drop all tables first and try again
+
+Problem: "Database doesn't exist"
+Solution: Create database 'pangi' first (Step 2)
+
+Problem: Still can't login
+Solution: Check if users exist:
+          SELECT * FROM users;
+          Should show 2 users
+
+═══════════════════════════════════════════════════════════════════
+
+💡 IMPORTANT NOTES:
+
+• This creates the MINIMUM required tables
+• The approval system will work perfectly
+• You can add more data later
+• Change passwords after first login!
+
+═══════════════════════════════════════════════════════════════════
+
+Need help? The SQL file has comments explaining each step!
+
+═══════════════════════════════════════════════════════════════════

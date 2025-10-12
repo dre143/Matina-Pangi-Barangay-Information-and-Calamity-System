@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class ResidentTransfer extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'resident_id',
+        'transfer_type',
+        'transfer_date',
+        'reason',
+        'reason_details',
+        'origin_address',
+        'origin_barangay',
+        'origin_municipality',
+        'origin_province',
+        'destination_address',
+        'destination_barangay',
+        'destination_municipality',
+        'destination_province',
+        'approved_by',
+        'approved_at',
+        'remarks',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'transfer_date' => 'date',
+        'approved_at' => 'datetime',
+    ];
+
+    /**
+     * Relationships
+     */
+    public function resident()
+    {
+        return $this->belongsTo(Resident::class);
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeTransferIn($query)
+    {
+        return $query->where('transfer_type', 'transfer_in');
+    }
+
+    public function scopeTransferOut($query)
+    {
+        return $query->where('transfer_type', 'transfer_out');
+    }
+
+    public function scopeByReason($query, $reason)
+    {
+        return $query->where('reason', $reason);
+    }
+
+    /**
+     * Check if transfer is approved
+     */
+    public function isApproved()
+    {
+        return !is_null($this->approved_at);
+    }
+
+    /**
+     * Get full origin location
+     */
+    public function getFullOriginAttribute()
+    {
+        $parts = array_filter([
+            $this->origin_barangay,
+            $this->origin_municipality,
+            $this->origin_province,
+        ]);
+        
+        return implode(', ', $parts);
+    }
+
+    /**
+     * Get full destination location
+     */
+    public function getFullDestinationAttribute()
+    {
+        $parts = array_filter([
+            $this->destination_barangay,
+            $this->destination_municipality,
+            $this->destination_province,
+        ]);
+        
+        return implode(', ', $parts);
+    }
+}

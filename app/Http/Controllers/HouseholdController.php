@@ -1,0 +1,511 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Household;
+use App\Models\Resident;
+use App\Models\AuditLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class HouseholdController extends Controller
+{
+    /**
+     * Display a listing of households
+     */
+    public function index(Request $request)
+    {
+        $query = Household::with(['officialHead', 'head', 'residents', 'purok']);
+
+        // Search by household ID or address
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('household_id', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by primary head name
+        if ($request->filled('head_name')) {
+            $headName = $request->head_name;
+            $query->whereHas('officialHead', function($q) use ($headName) {
+                $q->where('first_name', 'like', "%{$headName}%")
+                  ->orWhere('last_name', 'like', "%{$headName}%");
+            });
+        }
+
+        // Filter by purok
+        if ($request->filled('purok_id')) {
+            $query->where('purok_id', $request->purok_id);
+        }
+
+        // Filter by beneficiary type
+        if ($request->filled('beneficiary_type')) {
+            switch ($request->beneficiary_type) {
+                case 'pwd':
+                    $query->whereHas('residents', function($q) {
+                        $q->where('is_pwd', true);
+                    });
+                    break;
+                case '4ps':
+                    $query->whereHas('residents', function($q) {
+                        $q->where('is_4ps_beneficiary', true);
+                    });
+                    break;
+                case 'senior':
+                    $query->whereHas('residents', function($q) {
+                        $q->where('is_senior_citizen', true);
+                    });
+                    break;
+                case 'teen':
+                    $query->whereHas('residents', function($q) {
+                        $q->where('is_teen', true);
+                    });
+                    break;
+            }
+        }
+
+        // Filter by household type
+        if ($request->filled('type')) {
+            $query->where('household_type', $request->type);
+        }
+
+        $households = $query->latest()->paginate(15)->appends($request->except('page'));
+
+        // Get puroks for filter dropdown
+        $puroks = \App\Models\Purok::orderBy('purok_code')->get();
+
+        return view('households.index', compact('households', 'puroks'));
+    }
+
+    /**
+     * Show the form for creating a new household
+     */
+    public function create()
+    {
+        $households = Household::with('head')->get(); // For parent household selection
+        
+        // Get distinct puroks and addresses for dropdowns
+        $puroks = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 
+                   'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9', 'Purok 10'];
+        
+        $addresses = DB::table('households')
+            ->distinct()
+            ->pluck('address')
+            ->filter()
+            ->sort()
+            ->values();
+        
+        return view('households.create', compact('households', 'puroks', 'addresses'));
+    }
+
+    /**
+     * Store a newly created household with head and members
+     */
+    public function store(Request $request)
+    {
+        // Validate household data
+        $validated = $request->validate([
+            'household_type' => 'required|in:solo,family,extended',
+            'address' => 'required|string|max:255',
+            'purok' => 'nullable|string|max:100',
+            'housing_type' => 'required|in:owned,rented,rent-free',
+            'has_electricity' => 'boolean',
+            'electric_account_number' => 'nullable|string|max:100',
+            'total_members' => 'required|integer|min:1',
+            'parent_household_id' => 'nullable|exists:households,id',
+            
+            // Household head data
+            'head.first_name' => 'required|string|max:255',
+            'head.middle_name' => 'nullable|string|max:255',
+            'head.last_name' => 'required|string|max:255',
+            'head.suffix' => 'nullable|string|max:50',
+            'head.birthdate' => 'required|date|before:today',
+            'head.sex' => 'required|in:male,female',
+            'head.civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'head.place_of_birth' => 'nullable|string|max:255',
+            'head.nationality' => 'nullable|string|max:100',
+            'head.religion' => 'nullable|string|max:100',
+            'head.contact_number' => 'nullable|string|max:20',
+            'head.email' => 'nullable|email|max:255',
+            'head.is_pwd' => 'boolean',
+            'head.pwd_id' => 'nullable|string|max:100',
+            'head.disability_type' => 'nullable|string|max:255',
+            'head.is_voter' => 'boolean',
+            'head.precinct_number' => 'nullable|string|max:50',
+            'head.is_4ps_beneficiary' => 'boolean',
+            'head.4ps_id' => 'nullable|string|max:100',
+            'head.occupation' => 'nullable|string|max:255',
+            'head.employment_status' => 'nullable|in:employed,unemployed,self-employed,student,retired',
+            'head.employer_name' => 'nullable|string|max:255',
+            'head.monthly_income' => 'nullable|numeric|min:0',
+            'head.educational_attainment' => 'nullable|string',
+            'head.blood_type' => 'nullable|string|max:10',
+            'head.medical_conditions' => 'nullable|string',
+            'head.remarks' => 'nullable|string',
+            
+            // Members data (dynamic)
+            'members' => 'nullable|array',
+            'members.*.first_name' => 'required|string|max:255',
+            'members.*.middle_name' => 'nullable|string|max:255',
+            'members.*.last_name' => 'required|string|max:255',
+            'members.*.suffix' => 'nullable|string|max:50',
+            'members.*.birthdate' => 'required|date|before:today',
+            'members.*.sex' => 'required|in:male,female',
+            'members.*.civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'members.*.place_of_birth' => 'nullable|string|max:255',
+            'members.*.nationality' => 'nullable|string|max:100',
+            'members.*.religion' => 'nullable|string|max:100',
+            'members.*.contact_number' => 'nullable|string|max:20',
+            'members.*.email' => 'nullable|email|max:255',
+            'members.*.household_role' => 'required|in:spouse,child,parent,sibling,relative,other',
+            'members.*.is_pwd' => 'boolean',
+            'members.*.pwd_id' => 'nullable|string|max:100',
+            'members.*.disability_type' => 'nullable|string|max:255',
+            'members.*.is_voter' => 'boolean',
+            'members.*.precinct_number' => 'nullable|string|max:50',
+            'members.*.is_4ps_beneficiary' => 'boolean',
+            'members.*.4ps_id' => 'nullable|string|max:100',
+            'members.*.occupation' => 'nullable|string|max:255',
+            'members.*.employment_status' => 'nullable|in:employed,unemployed,self-employed,student,retired',
+            'members.*.employer_name' => 'nullable|string|max:255',
+            'members.*.monthly_income' => 'nullable|numeric|min:0',
+            'members.*.educational_attainment' => 'nullable|string',
+            'members.*.blood_type' => 'nullable|string|max:10',
+            'members.*.medical_conditions' => 'nullable|string',
+            'members.*.remarks' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Create household
+            $household = Household::create([
+                'address' => $validated['address'],
+                'purok' => $validated['purok'] ?? null,
+                'housing_type' => $validated['housing_type'],
+                'has_electricity' => $validated['has_electricity'] ?? true,
+                'electric_account_number' => $validated['electric_account_number'] ?? null,
+                'total_members' => $validated['total_members'],
+                'household_type' => $validated['household_type'],
+                'parent_household_id' => $validated['parent_household_id'] ?? null,
+            ]);
+
+            // Create primary sub-family for the official household head
+            $primaryFamily = \App\Models\SubFamily::create([
+                'sub_family_name' => 'Primary Family',
+                'household_id' => $household->id,
+                'is_primary_family' => true,
+                'approval_status' => $household->approval_status,
+                'approved_by' => $household->approved_by,
+                'approved_at' => $household->approved_at,
+            ]);
+
+            // Create household head (official/primary head)
+            $headData = $validated['head'];
+            $headData['household_id'] = $household->id;
+            $headData['sub_family_id'] = $primaryFamily->id;
+            $headData['household_role'] = 'head';
+            $headData['is_household_head'] = true;
+            $headData['is_primary_head'] = true; // Mark as official barangay-recognized head
+            $headData['created_by'] = auth()->id();
+            $headData['updated_by'] = auth()->id();
+            
+            $head = Resident::create($headData);
+
+            // Update household and sub-family with official head reference
+            $household->update(['official_head_id' => $head->id]);
+            $primaryFamily->update(['sub_head_resident_id' => $head->id]);
+
+            // Create members if any
+            if (isset($validated['members']) && count($validated['members']) > 0) {
+                foreach ($validated['members'] as $memberData) {
+                    $memberData['household_id'] = $household->id;
+                    $memberData['sub_family_id'] = $primaryFamily->id;
+                    $memberData['is_household_head'] = false;
+                    $memberData['is_primary_head'] = false;
+                    $memberData['created_by'] = auth()->id();
+                    $memberData['updated_by'] = auth()->id();
+                    
+                    Resident::create($memberData);
+                }
+            }
+
+            AuditLog::logAction(
+                'create',
+                'Household',
+                $household->id,
+                "Created household {$household->household_id} with {$validated['total_members']} member(s)",
+                null,
+                $validated
+            );
+
+            DB::commit();
+
+            return redirect()->route('households.show', $household)
+                ->with('success', 'Household registered successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()
+                ->withErrors(['error' => 'Failed to register household: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Display the specified household with unified view of all sub-families
+     */
+    public function show(Household $household)
+    {
+        // Load all relationships including sub-families
+        $household->load([
+            'officialHead',
+            'head',
+            'residents',
+            'subFamilies.subHead',
+            'subFamilies.members',
+            'parentHousehold',
+            'childHouseholds',
+            'purok'
+        ]);
+
+        // Get primary family (official head's family)
+        $primaryFamily = $household->subFamilies()->where('is_primary_family', true)->first();
+        $primaryMembers = $primaryFamily ? $primaryFamily->members()->withTrashed()->orderBy('age', 'desc')->get() : collect();
+
+        // Get extended families (co-heads and their members)
+        $extendedFamilies = $household->subFamilies()
+            ->where('is_primary_family', false)
+            ->with(['subHead', 'members' => function($query) {
+                $query->withTrashed()->orderBy('is_co_head', 'desc')->orderBy('age', 'desc');
+            }])
+            ->get();
+
+        // Calculate statistics for each family group
+        $primaryStats = [
+            'total' => $primaryMembers->count(),
+            'seniors' => $primaryMembers->where('is_senior_citizen', true)->count(),
+            'teens' => $primaryMembers->where('is_teen', true)->count(),
+            'pwd' => $primaryMembers->where('is_pwd', true)->count(),
+            'four_ps' => $primaryMembers->where('is_4ps_beneficiary', true)->count(),
+            'voters' => $primaryMembers->where('is_voter', true)->count(),
+            'active' => $primaryMembers->where('status', 'active')->count(),
+            'reallocated' => $primaryMembers->where('status', 'reallocated')->count(),
+            'deceased' => $primaryMembers->where('status', 'deceased')->count(),
+        ];
+
+        // Overall household statistics
+        $statistics = $household->statistics;
+
+        return view('households.show', compact(
+            'household', 
+            'statistics', 
+            'primaryFamily',
+            'primaryMembers',
+            'primaryStats',
+            'extendedFamilies'
+        ));
+    }
+
+    /**
+     * Show the form for editing the specified household
+     */
+    public function edit(Household $household)
+    {
+        // Only secretary can edit
+        if (!auth()->user()->isSecretary()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $household->load('residents');
+        $households = Household::where('id', '!=', $household->id)->with('head')->get();
+        
+        // Get distinct puroks and addresses for dropdowns
+        $puroks = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 
+                   'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9', 'Purok 10'];
+        
+        $addresses = DB::table('households')
+            ->distinct()
+            ->pluck('address')
+            ->filter()
+            ->sort()
+            ->values();
+        
+        return view('households.edit', compact('household', 'households', 'puroks', 'addresses'));
+    }
+
+    /**
+     * Update the specified household
+     */
+    public function update(Request $request, Household $household)
+    {
+        // Only secretary can update
+        if (!auth()->user()->isSecretary()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $oldValues = $household->toArray();
+
+        $validated = $request->validate([
+            'address' => 'required|string|max:255',
+            'purok' => 'nullable|string|max:100',
+            'housing_type' => 'required|in:owned,rented,rent-free',
+            'has_electricity' => 'boolean',
+            'electric_account_number' => 'nullable|string|max:100',
+            'household_type' => 'required|in:solo,family,extended',
+            'parent_household_id' => 'nullable|exists:households,id',
+        ]);
+
+        // Update total members based on actual residents
+        $validated['total_members'] = $household->residents()->count();
+
+        $household->update($validated);
+
+        AuditLog::logAction(
+            'update',
+            'Household',
+            $household->id,
+            "Updated household {$household->household_id}",
+            $oldValues,
+            $validated
+        );
+
+        return redirect()->route('households.show', $household)
+            ->with('success', 'Household updated successfully!');
+    }
+
+    /**
+     * Remove the specified household
+     */
+    public function destroy(Household $household)
+    {
+        // Only secretary can delete
+        if (!auth()->user()->isSecretary()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $householdId = $household->household_id;
+        $householdDbId = $household->id;
+
+        // This will cascade delete all residents in the household
+        $household->delete();
+
+        AuditLog::logAction(
+            'delete',
+            'Household',
+            $householdDbId,
+            "Deleted household {$householdId}"
+        );
+
+        return redirect()->route('households.index')
+            ->with('success', 'Household deleted successfully!');
+    }
+
+    /**
+     * Add a new member to existing household
+     */
+    public function addMember(Household $household)
+    {
+        // Secretary and Staff can add members
+        if (!auth()->user()->isSecretary() && !auth()->user()->isStaff()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('households.add-member', compact('household'));
+    }
+
+    /**
+     * Store new member to household
+     */
+    public function storeMember(Request $request, Household $household)
+    {
+        // Secretary and Staff can add members
+        if (!auth()->user()->isSecretary() && !auth()->user()->isStaff()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'sub_family_id' => 'required|exists:sub_families,id',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:50',
+            'birthdate' => 'required|date|before:today',
+            'sex' => 'required|in:male,female',
+            'civil_status' => 'required|in:single,married,widowed,separated,divorced',
+            'place_of_birth' => 'nullable|string|max:255',
+            'nationality' => 'nullable|string|max:100',
+            'religion' => 'nullable|string|max:100',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'household_role' => 'required|in:spouse,child,parent,sibling,relative,other',
+            'is_pwd' => 'boolean',
+            'pwd_id' => 'nullable|string|max:100',
+            'disability_type' => 'nullable|string|max:255',
+            'is_voter' => 'boolean',
+            'precinct_number' => 'nullable|string|max:50',
+            'is_4ps_beneficiary' => 'boolean',
+            '4ps_id' => 'nullable|string|max:100',
+            'occupation' => 'nullable|string|max:255',
+            'employment_status' => 'nullable|in:employed,unemployed,self-employed,student,retired',
+            'employer_name' => 'nullable|string|max:255',
+            'monthly_income' => 'nullable|numeric|min:0',
+            'educational_attainment' => 'nullable|string',
+            'blood_type' => 'nullable|string|max:10',
+            'medical_conditions' => 'nullable|string',
+            'remarks' => 'nullable|string',
+        ]);
+
+        // Calculate age from birthdate
+        $birthdate = Carbon::parse($validated['birthdate']);
+        $age = $birthdate->age;
+
+        $validated['household_id'] = $household->id;
+        $validated['age'] = $age;
+        $validated['is_household_head'] = false;
+        $validated['is_primary_head'] = false;
+        $validated['is_co_head'] = false;
+        $validated['is_senior_citizen'] = $age >= 60;
+        $validated['is_teen'] = $age >= 13 && $age <= 19;
+        $validated['status'] = 'active';
+        
+        // If added by staff, set as pending approval
+        if (auth()->user()->isStaff()) {
+            $validated['approval_status'] = 'pending';
+            $validated['approved_at'] = null;
+            $validated['approved_by'] = null;
+        } else {
+            // Secretary can directly approve
+            $validated['approval_status'] = 'approved';
+            $validated['approved_at'] = now();
+            $validated['approved_by'] = auth()->id();
+        }
+        
+        $validated['created_by'] = auth()->id();
+        $validated['updated_by'] = auth()->id();
+
+        $resident = Resident::create($validated);
+
+        // Update household member count
+        $household->update([
+            'total_members' => $household->residents()->count()
+        ]);
+
+        AuditLog::logAction(
+            'create',
+            'Resident',
+            $resident->id,
+            "Added member {$resident->full_name} to household {$household->household_id}"
+        );
+
+        // Different message based on who added the member
+        if (auth()->user()->isStaff()) {
+            return redirect()->route('households.show', $household)
+                ->with('success', 'Member added successfully! Pending approval from Secretary.');
+        } else {
+            return redirect()->route('households.show', $household)
+                ->with('success', 'Member added and approved successfully!');
+        }
+    }
+}
