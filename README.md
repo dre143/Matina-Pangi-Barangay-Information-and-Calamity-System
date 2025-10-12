@@ -6,6 +6,7 @@
   ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php&logoColor=white)
   ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
   ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
+  ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
   **A Modern, Beautiful Web-Based System for Barangay Management**
   
@@ -226,7 +227,9 @@ This system features a **complete modern redesign** with:
 
 ## 📄 License
 
-Proprietary - Barangay Matina Pangi
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+**Copyright © 2025 Maddy Cordova**
 
 ---
 
