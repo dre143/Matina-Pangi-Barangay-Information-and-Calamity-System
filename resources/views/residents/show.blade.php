@@ -56,6 +56,9 @@
             </div>
             <!-- Actions -->
             <div class="d-flex gap-2">
+                <a href="{{ route('resident-transfers.create', ['resident_id' => $resident->id]) }}" class="btn btn-info">
+                    <i class="bi bi-arrow-left-right"></i> Request Transfer
+                </a>
                 @if(auth()->user()->isSecretary())
                     <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#changeStatusModal">
                         <i class="bi bi-arrow-repeat"></i> Change Status

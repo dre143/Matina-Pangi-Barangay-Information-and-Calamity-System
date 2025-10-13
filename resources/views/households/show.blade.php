@@ -17,6 +17,9 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-house-door-fill"></i> Household {{ $household->household_id }}</h2>
     <div class="btn-group">
+        <a href="{{ route('household-events.by-household', $household) }}" class="btn btn-info">
+            <i class="bi bi-calendar-event"></i> View Events
+        </a>
         <a href="{{ route('sub-families.create', ['household_id' => $household->id]) }}" class="btn btn-primary">
             <i class="bi bi-people-fill"></i> Add Extended Family
         </a>

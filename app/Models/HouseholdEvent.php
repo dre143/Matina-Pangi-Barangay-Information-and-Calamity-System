@@ -12,6 +12,7 @@ class HouseholdEvent extends Model
     protected $fillable = [
         'household_id',
         'event_type',
+        'description',
         'old_head_id',
         'new_head_id',
         'reason',

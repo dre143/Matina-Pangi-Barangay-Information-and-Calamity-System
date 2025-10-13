@@ -15,6 +15,8 @@ use App\Http\Controllers\CalamityController;
 use App\Http\Controllers\PwdSupportController;
 use App\Http\Controllers\GovernmentAssistanceController;
 use App\Http\Controllers\SeniorHealthController;
+use App\Http\Controllers\ResidentTransferController;
+use App\Http\Controllers\HouseholdEventController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,4 +131,21 @@ Route::middleware('auth')->group(function () {
         // Senior Health Routes (Secretary Only)
         Route::resource('senior-health', SeniorHealthController::class);
     });
+    
+    // Resident Transfer Routes (All authenticated users can view/create, Secretary approves)
+    Route::resource('resident-transfers', ResidentTransferController::class);
+    Route::get('/resident-transfers-pending', [ResidentTransferController::class, 'pending'])
+        ->name('resident-transfers.pending')
+        ->middleware('secretary');
+    Route::post('/resident-transfers/{residentTransfer}/approve', [ResidentTransferController::class, 'approve'])
+        ->name('resident-transfers.approve')
+        ->middleware('secretary');
+    Route::post('/resident-transfers/{residentTransfer}/reject', [ResidentTransferController::class, 'reject'])
+        ->name('resident-transfers.reject')
+        ->middleware('secretary');
+    
+    // Household Events Routes (View only)
+    Route::get('/household-events', [HouseholdEventController::class, 'index'])->name('household-events.index');
+    Route::get('/household-events/{householdEvent}', [HouseholdEventController::class, 'show'])->name('household-events.show');
+    Route::get('/households/{household}/events', [HouseholdEventController::class, 'byHousehold'])->name('household-events.by-household');
 });

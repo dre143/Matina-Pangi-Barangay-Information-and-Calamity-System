@@ -1,5 +1,17 @@
 <?php $__env->startSection('title', 'Residents'); ?>
 
+<?php $__env->startPush('styles'); ?>
+<style>
+    .btn-group-sm > .btn {
+        white-space: nowrap;
+    }
+    .btn-group {
+        display: inline-flex !important;
+        flex-wrap: nowrap !important;
+    }
+</style>
+<?php $__env->stopPush(); ?>
+
 <?php $__env->startSection('content'); ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-people"></i> Residents</h2>
@@ -129,7 +141,7 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-sm" role="group">
                                     <a href="<?php echo e(route('residents.show', $resident)); ?>" 
                                        class="btn btn-info" title="View">
                                         <i class="bi bi-eye"></i>
@@ -139,13 +151,14 @@
                                            class="btn btn-warning" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="<?php echo e(route('residents.archive', $resident)); ?>" 
-                                              method="POST" class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to archive this resident?')">
+                                        <button type="button" class="btn btn-secondary" title="Archive"
+                                                onclick="if(confirm('Are you sure you want to archive this resident?')) { document.getElementById('archive-form-<?php echo e($resident->id); ?>').submit(); }">
+                                            <i class="bi bi-archive"></i>
+                                        </button>
+                                        <form id="archive-form-<?php echo e($resident->id); ?>" 
+                                              action="<?php echo e(route('residents.archive', $resident)); ?>" 
+                                              method="POST" class="d-none">
                                             <?php echo csrf_field(); ?>
-                                            <button type="submit" class="btn btn-secondary" title="Archive">
-                                                <i class="bi bi-archive"></i>
-                                            </button>
                                         </form>
                                     <?php endif; ?>
                                 </div>

@@ -83,6 +83,86 @@
             border-radius: 9999px;
             font-size: 0.75rem;
         }
+        
+        /* ========================================
+           BACK BUTTON FIX - Ensure visibility
+           ======================================== */
+        
+        /* Fix for all back buttons */
+        .btn-secondary,
+        .btn-outline-secondary,
+        .btn-outline-light {
+            white-space: nowrap !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+        
+        /* Ensure back button text is always visible */
+        .btn-secondary i,
+        .btn-outline-secondary i,
+        .btn-outline-light i {
+            flex-shrink: 0;
+        }
+        
+        /* Fix secondary button text color */
+        .btn-secondary {
+            color: #ffffff !important;
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+        }
+        
+        .btn-secondary:hover {
+            color: #ffffff !important;
+            background-color: #5a6268 !important;
+            border-color: #545b62 !important;
+        }
+        
+        /* Fix outline-light button for dark/colored backgrounds */
+        .btn-outline-light,
+        .btn-outline-light:link,
+        .btn-outline-light:visited {
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            font-weight: 500 !important;
+        }
+        
+        .btn-outline-light:hover,
+        .btn-outline-light:focus,
+        .btn-outline-light:active {
+            color: #212529 !important;
+            background-color: #ffffff !important;
+            border-color: #ffffff !important;
+        }
+        
+        /* Specific fix for buttons on gradient backgrounds */
+        .card .btn-outline-light,
+        [style*="gradient"] .btn-outline-light {
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.8) !important;
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Ensure button group doesn't cause overflow */
+        .btn-group {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        /* Fix for buttons in header sections */
+        .d-flex .btn {
+            flex-shrink: 0;
+        }
+        
+        /* Ensure all buttons have proper padding */
+        .btn {
+            padding: 0.5rem 1rem !important;
+            min-width: fit-content !important;
+        }
     </style>
     @stack('styles')
 </head>
@@ -163,6 +243,32 @@
                                 <i class="bi bi-bar-chart-fill"></i>
                                 <span>Census</span>
                                 @if(request()->routeIs('census.*'))
+                                    <i class="bi bi-chevron-right ms-auto"></i>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('resident-transfers.*') ? 'active' : '' }}" href="{{ route('resident-transfers.index') }}">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Resident Transfers</span>
+                                @if(auth()->user()->isSecretary())
+                                    @php
+                                        $pendingCount = \App\Models\ResidentTransfer::where('status', 'pending')->count();
+                                    @endphp
+                                    @if($pendingCount > 0)
+                                        <span class="badge bg-danger rounded-pill ms-2">{{ $pendingCount }}</span>
+                                    @endif
+                                @endif
+                                @if(request()->routeIs('resident-transfers.*'))
+                                    <i class="bi bi-chevron-right ms-auto"></i>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('household-events.*') ? 'active' : '' }}" href="{{ route('household-events.index') }}">
+                                <i class="bi bi-calendar-event"></i>
+                                <span>Household Events</span>
+                                @if(request()->routeIs('household-events.*'))
                                     <i class="bi bi-chevron-right ms-auto"></i>
                                 @endif
                             </a>

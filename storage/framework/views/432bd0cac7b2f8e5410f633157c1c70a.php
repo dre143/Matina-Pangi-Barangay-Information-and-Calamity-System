@@ -15,6 +15,9 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-house-door-fill"></i> Household <?php echo e($household->household_id); ?></h2>
     <div class="btn-group">
+        <a href="<?php echo e(route('household-events.by-household', $household)); ?>" class="btn btn-info">
+            <i class="bi bi-calendar-event"></i> View Events
+        </a>
         <a href="<?php echo e(route('sub-families.create', ['household_id' => $household->id])); ?>" class="btn btn-primary">
             <i class="bi bi-people-fill"></i> Add Extended Family
         </a>

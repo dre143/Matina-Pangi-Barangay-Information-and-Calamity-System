@@ -2,6 +2,18 @@
 
 @section('title', 'Residents')
 
+@push('styles')
+<style>
+    .btn-group-sm > .btn {
+        white-space: nowrap;
+    }
+    .btn-group {
+        display: inline-flex !important;
+        flex-wrap: nowrap !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-people"></i> Residents</h2>
@@ -127,7 +139,7 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('residents.show', $resident) }}" 
                                        class="btn btn-info" title="View">
                                         <i class="bi bi-eye"></i>
@@ -137,13 +149,14 @@
                                            class="btn btn-warning" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="{{ route('residents.archive', $resident) }}" 
-                                              method="POST" class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to archive this resident?')">
+                                        <button type="button" class="btn btn-secondary" title="Archive"
+                                                onclick="if(confirm('Are you sure you want to archive this resident?')) { document.getElementById('archive-form-{{ $resident->id }}').submit(); }">
+                                            <i class="bi bi-archive"></i>
+                                        </button>
+                                        <form id="archive-form-{{ $resident->id }}" 
+                                              action="{{ route('residents.archive', $resident) }}" 
+                                              method="POST" class="d-none">
                                             @csrf
-                                            <button type="submit" class="btn btn-secondary" title="Archive">
-                                                <i class="bi bi-archive"></i>
-                                            </button>
                                         </form>
                                     @endif
                                 </div>

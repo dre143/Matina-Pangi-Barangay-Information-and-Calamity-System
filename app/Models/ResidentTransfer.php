@@ -11,10 +11,16 @@ class ResidentTransfer extends Model
 
     protected $fillable = [
         'resident_id',
+        'old_household_id',
+        'new_household_id',
+        'old_purok',
+        'new_purok',
         'transfer_type',
+        'status',
         'transfer_date',
         'reason',
         'reason_details',
+        'reason_for_transfer',
         'origin_address',
         'origin_barangay',
         'origin_municipality',
@@ -42,6 +48,16 @@ class ResidentTransfer extends Model
         return $this->belongsTo(Resident::class);
     }
 
+    public function oldHousehold()
+    {
+        return $this->belongsTo(Household::class, 'old_household_id');
+    }
+
+    public function newHousehold()
+    {
+        return $this->belongsTo(Household::class, 'new_household_id');
+    }
+
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
@@ -55,6 +71,26 @@ class ResidentTransfer extends Model
     /**
      * Scopes
      */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
     public function scopeTransferIn($query)
     {
         return $query->where('transfer_type', 'transfer_in');
