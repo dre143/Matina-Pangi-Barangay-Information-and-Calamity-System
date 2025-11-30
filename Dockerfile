@@ -1,6 +1,5 @@
 FROM php:8.2-apache
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,34 +10,30 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev
 
-# Configure GD properly for Debian (PHP 8.x)
+# Fix GD include paths for Debian
 RUN docker-php-ext-configure gd \
-    --with-freetype=/usr/include/freetype2 \
-    --with-jpeg=/usr/include
+    --with-jpeg=/usr/include \
+    --with-freetype=/usr/include/freetype2
 
-# Install PHP extensions
+# Install all extensions
 RUN docker-php-ext-install -j$(nproc) \
-    gd \
-    zip \
     pdo \
     pdo_mysql \
     pdo_pgsql \
+    zip \
     mbstring \
-    exif
+    exif \
+    gd
 
-# Enable Apache rewrite
 RUN a2enmod rewrite
 
-# Set document root to /public
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
  && sed -ri -e 's!<Directory /var/www/html>!<Directory /var/www/html/public>!g' /etc/apache2/apache2.conf
 
-# Copy app
 COPY . /var/www/html
 
 WORKDIR /var/www/html
 
-# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
@@ -47,7 +42,6 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
     --no-interaction \
     --prefer-dist
 
-# Storage permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
