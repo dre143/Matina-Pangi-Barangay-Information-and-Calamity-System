@@ -25,7 +25,19 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PurokSeeder::class,
             HouseholdAndResidentSeeder::class,
+            CalamityModuleSeeder::class,
         ]);
+
+        // Optional: Seed Health Module data (comment out if not needed)
+        $this->command->info('');
+        $this->command->info('🏥 Seeding Health Module (optional)...');
+        if (class_exists(\Database\Seeders\HealthModuleSeeder::class)) {
+            $this->call([
+                \Database\Seeders\HealthModuleSeeder::class,
+            ]);
+        } else {
+            $this->command->warn('⚠ HealthModuleSeeder not found, skipping.');
+        }
 
         $this->command->info('');
         $this->command->info('╔════════════════════════════════════════════════════════╗');
@@ -45,6 +57,28 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   • Teens (13-19): ' . \App\Models\Resident::where('is_teen', true)->count());
         $this->command->info('   • Voters: ' . \App\Models\Resident::where('is_voter', true)->count());
         $this->command->info('   • 4Ps Beneficiaries: ' . \App\Models\Resident::where('is_4ps_beneficiary', true)->count());
+        $this->command->info('');
+        $this->command->info('🏥 HEALTH MODULE SUMMARY:');
+        $healthModels = [
+            'Maternal Health Records' => \App\Models\MaternalHealth::class,
+            'Child Health Records' => \App\Models\ChildHealth::class,
+            'Senior Health Records' => \App\Models\SeniorHealth::class,
+            'Disease Cases' => \App\Models\DiseaseMonitoring::class,
+            'Health Assistance Requests' => \App\Models\HealthAssistance::class,
+        ];
+        foreach ($healthModels as $label => $model) {
+            try {
+                $count = $model::count();
+                $this->command->info('   • '.$label.': ' . $count);
+            } catch (\Throwable $e) {
+                $this->command->warn('   • '.$label.': model not installed');
+            }
+        }
+        try {
+            $this->command->info('   • Family Planning Records: ' . \App\Models\FamilyPlanning::count());
+        } catch (\Throwable $e) {
+            $this->command->warn('   • Family Planning Records: model not installed');
+        }
         $this->command->info('');
         $this->command->info('🔐 LOGIN CREDENTIALS:');
         $this->command->info('   Secretary: secretary@pangi.gov / password');

@@ -38,16 +38,48 @@ class ResidentTransferController extends Controller
             });
         }
 
+        // Filter by reason
+        if ($request->filled('reason')) {
+            $query->where('reason', $request->reason);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('transfer_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('transfer_date', '<=', $request->date_to);
+        }
+
+        // Filter by processed by
+        if ($request->filled('processed_by')) {
+            $query->where('processed_by', $request->processed_by);
+        }
+
+        // Filter by from purok
+        if ($request->filled('from_purok')) {
+            $query->whereHas('oldHousehold', function($q) use ($request) {
+                $q->whereHas('purok', function($q) use ($request) {
+                    $q->where('purok_name', $request->from_purok);
+                });
+            });
+        }
+
         // Load relationships including soft-deleted residents
         $transfers = $query->with([
             'resident' => function($q) {
                 $q->withTrashed();
             },
-            'oldHousehold',
-            'newHousehold'
-        ])->latest()->paginate(20);
+            'oldHousehold.purok',
+            'newHousehold.purok',
+            'creator',
+            'approver'
+        ])->latest()->paginate(20)->appends($request->except('page'));
 
-        return view('resident-transfers.index', compact('transfers'));
+        // Get staff for filter dropdown
+        $staff = \App\Models\User::where('role', '!=', 'resident')->get(['id', 'name']);
+
+        return view('resident-transfers.index', compact('transfers', 'staff'));
     }
 
     /**

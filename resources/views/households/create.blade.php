@@ -346,6 +346,16 @@ $(document).ready(function() {
             addressSelect.removeAttribute('name');
         }
     });
+
+    $(document).on('focus mousedown', '.form-select', function() {
+        const rect = this.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const needed = 280;
+        const gap = vh - rect.bottom;
+        if (gap < needed) {
+            window.scrollBy({ top: needed - gap + 20, behavior: 'smooth' });
+        }
+    });
 });
 </script>
 @endpush

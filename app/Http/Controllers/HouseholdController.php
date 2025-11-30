@@ -72,6 +72,43 @@ class HouseholdController extends Controller
             $query->where('household_type', $request->type);
         }
 
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by member count range
+        if ($request->filled('member_count_min')) {
+            $query->having('total_members', '>=', $request->member_count_min);
+        }
+        if ($request->filled('member_count_max')) {
+            $query->having('total_members', '<=', $request->member_count_max);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Filter by pregnant member
+        if ($request->filled('has_pregnant')) {
+            if ($request->has_pregnant === 'yes') {
+                $query->whereHas('residents', function($q) {
+                    $q->where('is_pregnant', true);
+                });
+            } elseif ($request->has_pregnant === 'no') {
+                $query->whereDoesntHave('residents', function($q) {
+                    $q->where('is_pregnant', true);
+                });
+            }
+        }
+
+        // Add member count to query
+        $query->withCount('residents as total_members');
+
         $households = $query->latest()->paginate(15)->appends($request->except('page'));
 
         // Get puroks for filter dropdown

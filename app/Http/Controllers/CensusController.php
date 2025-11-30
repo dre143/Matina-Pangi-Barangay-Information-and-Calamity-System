@@ -17,78 +17,66 @@ class CensusController extends Controller
     /**
      * Display census dashboard
      */
-    public function index()
+    public function index(Request $request)
     {
+        $year = (int) ($request->get('year', now()->year));
+
         $census = [
-            // Population Statistics (All approved residents)
-            'total_population' => Resident::approved()->count(),
-            'total_households' => Household::approved()->count(),
-            'average_household_size' => round(Household::approved()->avg('total_members'), 2),
-            
-            // Status Breakdown
-            'active_residents' => Resident::approved()->active()->count(),
-            'reallocated_residents' => Resident::approved()->reallocated()->count(),
-            'deceased_residents' => Resident::approved()->deceased()->count(),
-            
-            // Gender Distribution (Active only)
-            'male_count' => Resident::approved()->active()->where('sex', 'male')->count(),
-            'female_count' => Resident::approved()->active()->where('sex', 'female')->count(),
-            
-            // Age Groups (Active only)
-            'children_count' => Resident::approved()->active()->where('age', '<', 13)->count(),
-            'teens_count' => Resident::approved()->active()->teens()->count(),
-            'adults_count' => Resident::approved()->active()->whereBetween('age', [20, 59])->count(),
-            'seniors_count' => Resident::approved()->active()->seniorCitizens()->count(),
-            
-            // Special Categories (Active only)
-            'pwd_count' => Resident::approved()->active()->pwd()->count(),
-            'senior_citizens_count' => Resident::approved()->active()->seniorCitizens()->count(),
-            'voters_count' => Resident::approved()->active()->voters()->count(),
-            'non_voters_count' => Resident::approved()->active()->where('is_voter', false)->count(),
-            'fourps_count' => Resident::approved()->active()->where('is_4ps_beneficiary', true)->count(),
-            
-            // Civil Status (Active only)
-            'single_count' => Resident::approved()->active()->where('civil_status', 'single')->count(),
-            'married_count' => Resident::approved()->active()->where('civil_status', 'married')->count(),
-            'widowed_count' => Resident::approved()->active()->where('civil_status', 'widowed')->count(),
-            'separated_count' => Resident::approved()->active()->where('civil_status', 'separated')->count(),
-            
-            // Employment (Active only)
-            'employed_count' => Resident::approved()->active()->where('employment_status', 'employed')->count(),
-            'unemployed_count' => Resident::approved()->active()->where('employment_status', 'unemployed')->count(),
-            'self_employed_count' => Resident::approved()->active()->where('employment_status', 'self-employed')->count(),
-            'students_count' => Resident::approved()->active()->where('employment_status', 'student')->count(),
-            'retired_count' => Resident::approved()->active()->where('employment_status', 'retired')->count(),
-            
-            // Housing (Approved only)
-            'owned_houses' => Household::approved()->where('housing_type', 'owned')->count(),
-            'rented_houses' => Household::approved()->where('housing_type', 'rented')->count(),
-            'rent_free_houses' => Household::approved()->where('housing_type', 'rent-free')->count(),
-            'with_electricity' => Household::approved()->where('has_electricity', true)->count(),
-            'without_electricity' => Household::approved()->where('has_electricity', false)->count(),
-            
-            // Income (Active only)
-            'total_income' => Resident::approved()->active()->sum('monthly_income'),
-            'average_income' => round(Resident::approved()->active()->avg('monthly_income'), 2),
-            
-            // Household Types (Approved only)
-            'solo_households' => Household::approved()->where('household_type', 'solo')->count(),
-            'family_households' => Household::approved()->where('household_type', 'family')->count(),
-            'extended_households' => Household::approved()->where('household_type', 'extended')->count(),
+            'total_population' => Resident::approved()->whereYear('approved_at', $year)->count(),
+            'total_households' => Household::approved()->whereYear('approved_at', $year)->count(),
+            'average_household_size' => round(Household::approved()->whereYear('approved_at', $year)->avg('total_members'), 2),
+
+            'active_residents' => Resident::approved()->whereYear('approved_at', $year)->active()->count(),
+            'reallocated_residents' => Resident::approved()->whereYear('approved_at', $year)->reallocated()->count(),
+            'deceased_residents' => Resident::approved()->whereYear('approved_at', $year)->deceased()->count(),
+
+            'male_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('sex', 'male')->count(),
+            'female_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('sex', 'female')->count(),
+
+            'children_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('age', '<', 13)->count(),
+            'youth_count' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [13, 17])->count(),
+            'adults_18_59_count' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [18, 59])->count(),
+            'seniors_count' => Resident::approved()->whereYear('approved_at', $year)->active()->seniorCitizens()->count(),
+
+            'pwd_count' => Resident::approved()->whereYear('approved_at', $year)->active()->pwd()->count(),
+            'senior_citizens_count' => Resident::approved()->whereYear('approved_at', $year)->active()->seniorCitizens()->count(),
+            'voters_count' => Resident::approved()->whereYear('approved_at', $year)->active()->voters()->count(),
+            'non_voters_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('is_voter', false)->count(),
+            'fourps_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('is_4ps_beneficiary', true)->count(),
+
+            'single_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'single')->count(),
+            'married_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'married')->count(),
+            'widowed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'widowed')->count(),
+            'separated_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'separated')->count(),
+
+            'employed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'employed')->count(),
+            'unemployed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'unemployed')->count(),
+            'self_employed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'self-employed')->count(),
+            'students_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'student')->count(),
+            'retired_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'retired')->count(),
+
+            'owned_houses' => Household::approved()->whereYear('approved_at', $year)->where('housing_type', 'owned')->count(),
+            'rented_houses' => Household::approved()->whereYear('approved_at', $year)->where('housing_type', 'rented')->count(),
+            'rent_free_houses' => Household::approved()->whereYear('approved_at', $year)->where('housing_type', 'rent-free')->count(),
+            'with_electricity' => Household::approved()->whereYear('approved_at', $year)->where('has_electricity', true)->count(),
+            'without_electricity' => Household::approved()->whereYear('approved_at', $year)->where('has_electricity', false)->count(),
+
+            'solo_households' => Household::approved()->whereYear('approved_at', $year)->where('household_type', 'solo')->count(),
+            'family_households' => Household::approved()->whereYear('approved_at', $year)->where('household_type', 'family')->count(),
+            'extended_households' => Household::approved()->whereYear('approved_at', $year)->where('household_type', 'extended')->count(),
         ];
 
-        // Age distribution for chart
         $ageDistribution = [
-            'age_0_12' => Resident::approved()->active()->where('age', '<', 13)->count(),
-            'age_13_19' => Resident::approved()->active()->whereBetween('age', [13, 19])->count(),
-            'age_20_29' => Resident::approved()->active()->whereBetween('age', [20, 29])->count(),
-            'age_30_39' => Resident::approved()->active()->whereBetween('age', [30, 39])->count(),
-            'age_40_49' => Resident::approved()->active()->whereBetween('age', [40, 49])->count(),
-            'age_50_59' => Resident::approved()->active()->whereBetween('age', [50, 59])->count(),
-            'age_60_plus' => Resident::approved()->active()->where('age', '>=', 60)->count(),
+            'age_0_12' => Resident::approved()->whereYear('approved_at', $year)->active()->where('age', '<', 13)->count(),
+            'age_13_19' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [13, 19])->count(),
+            'age_20_29' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [20, 29])->count(),
+            'age_30_39' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [30, 39])->count(),
+            'age_40_49' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [40, 49])->count(),
+            'age_50_59' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [50, 59])->count(),
+            'age_60_plus' => Resident::approved()->whereYear('approved_at', $year)->active()->where('age', '>=', 60)->count(),
         ];
 
-        return view('census.index', compact('census', 'ageDistribution'));
+        return view('census.index', compact('census', 'ageDistribution', 'year'));
     }
 
     /**
@@ -256,6 +244,63 @@ class CensusController extends Controller
             'average_income' => round(Resident::avg('monthly_income'), 2),
             'generated_at' => now()->format('F d, Y h:i A'),
             'generated_by' => auth()->user()->name,
+        ];
+    }
+
+    private function getCensusDataByYear(int $year)
+    {
+        return [
+            'total_population' => Resident::approved()->whereYear('approved_at', $year)->count(),
+            'total_households' => Household::approved()->whereYear('approved_at', $year)->count(),
+            'average_household_size' => round(Household::approved()->whereYear('approved_at', $year)->avg('total_members'), 2),
+
+            'active_residents' => Resident::approved()->whereYear('approved_at', $year)->active()->count(),
+            'reallocated_residents' => Resident::approved()->whereYear('approved_at', $year)->reallocated()->count(),
+            'deceased_residents' => Resident::approved()->whereYear('approved_at', $year)->deceased()->count(),
+
+            'male_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('sex', 'male')->count(),
+            'female_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('sex', 'female')->count(),
+
+            'children_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('age', '<', 13)->count(),
+            'youth_count' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [13, 17])->count(),
+            'adults_18_59_count' => Resident::approved()->whereYear('approved_at', $year)->active()->whereBetween('age', [18, 59])->count(),
+            'seniors_count' => Resident::approved()->whereYear('approved_at', $year)->active()->seniorCitizens()->count(),
+
+            'pwd_count' => Resident::approved()->whereYear('approved_at', $year)->active()->pwd()->count(),
+            'senior_citizen_members' => Resident::approved()->whereYear('approved_at', $year)->active()->seniorCitizens()->count(),
+            'voters_count' => Resident::approved()->whereYear('approved_at', $year)->active()->voters()->count(),
+            'non_voters_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('is_voter', false)->count(),
+            'fourps_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('is_4ps_beneficiary', true)->count(),
+
+            'single_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'single')->count(),
+            'married_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'married')->count(),
+            'widowed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'widowed')->count(),
+            'separated_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('civil_status', 'separated')->count(),
+
+            'employed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'employed')->count(),
+            'unemployed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'unemployed')->count(),
+            'self_employed_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'self-employed')->count(),
+            'students_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'student')->count(),
+            'retired_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('employment_status', 'retired')->count(),
+
+            'owned_houses' => Household::approved()->whereYear('approved_at', $year)->where('housing_type', 'owned')->count(),
+            'rented_houses' => Household::approved()->whereYear('approved_at', $year)->where('housing_type', 'rented')->count(),
+            'rent_free_houses' => Household::approved()->whereYear('approved_at', $year)->where('housing_type', 'rent-free')->count(),
+            'with_electricity' => Household::approved()->whereYear('approved_at', $year)->where('has_electricity', true)->count(),
+            'without_electricity' => Household::approved()->whereYear('approved_at', $year)->where('has_electricity', false)->count(),
+
+            'solo_households' => Household::approved()->whereYear('approved_at', $year)->where('household_type', 'solo')->count(),
+            'family_households' => Household::approved()->whereYear('approved_at', $year)->where('household_type', 'family')->count(),
+            'extended_households' => Household::approved()->whereYear('approved_at', $year)->where('household_type', 'extended')->count(),
+
+            'pregnant_women' => \App\Models\MaternalHealth::where('status','active')->where('pregnancy_status','Active')->whereYear('created_at',$year)->count(),
+            'infants_count' => Resident::approved()->whereYear('approved_at', $year)->active()->where('age','<',1)->count(),
+            'malnourished_children_count' => \App\Models\ChildHealth::whereYear('created_at',$year)->whereIn('nutrition_status',["Underweight","Stunted","Wasted"])->count(),
+            'common_illness_cases' => \App\Models\DiseaseMonitoring::whereYear('date_reported',$year)->count(),
+            'fully_immunized_children' => \App\Models\ChildHealth::whereYear('created_at',$year)->whereJsonContains('immunization_history', 'Fully Immunized')->count(),
+
+            'total_income' => Resident::approved()->whereYear('approved_at', $year)->active()->sum('monthly_income'),
+            'average_income' => round(Resident::approved()->whereYear('approved_at', $year)->active()->avg('monthly_income'), 2),
         ];
     }
 }

@@ -51,7 +51,35 @@ class ResidentController extends Controller
             }
         }
 
-        $residents = $query->latest()->paginate(15);
+        // Filter by gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Filter by civil status
+        if ($request->filled('civil_status')) {
+            $query->where('civil_status', $request->civil_status);
+        }
+
+        // Filter by age range
+        if ($request->filled('age_from')) {
+            $query->where('age', '>=', $request->age_from);
+        }
+        if ($request->filled('age_to')) {
+            $query->where('age', '<=', $request->age_to);
+        }
+
+        // Filter by purok
+        if ($request->filled('purok')) {
+            $query->where('purok', $request->purok);
+        }
+
+        // Filter by employment status
+        if ($request->filled('employment')) {
+            $query->where('employment_status', $request->employment);
+        }
+
+        $residents = $query->latest()->paginate(15)->appends($request->except('page'));
 
         return view('residents.index', compact('residents'));
     }
@@ -101,11 +129,16 @@ class ResidentController extends Controller
             'blood_type' => 'nullable|string|max:10',
             'medical_conditions' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'status' => 'nullable|in:active,reallocated,deceased',
         ]);
 
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
 
+        if (isset($validated['status']) && $validated['status'] === 'deceased') {
+            $validated['status_changed_at'] = now();
+            $validated['status_changed_by'] = auth()->id();
+        }
         $resident = Resident::create($validated);
 
         AuditLog::logAction(
@@ -187,10 +220,15 @@ class ResidentController extends Controller
             'blood_type' => 'nullable|string|max:10',
             'medical_conditions' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'status' => 'nullable|in:active,reallocated,deceased',
         ]);
 
         $validated['updated_by'] = auth()->id();
 
+        if (isset($validated['status']) && $validated['status'] !== $resident->status) {
+            $validated['status_changed_at'] = now();
+            $validated['status_changed_by'] = auth()->id();
+        }
         $resident->update($validated);
 
         AuditLog::logAction(

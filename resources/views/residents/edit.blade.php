@@ -84,6 +84,15 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">Select</option>
+                            <option value="active" {{ $resident->status == 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="reallocated" {{ $resident->status == 'reallocated' ? 'selected' : '' }}>Reallocated</option>
+                            <option value="deceased" {{ $resident->status == 'deceased' ? 'selected' : '' }}>Deceased</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="row mb-3">

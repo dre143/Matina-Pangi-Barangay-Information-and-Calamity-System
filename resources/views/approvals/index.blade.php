@@ -3,6 +3,7 @@
 @section('title', 'Pending Approvals')
 
 @section('content')
+<div class="section-offset">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-clock-history"></i> Pending Approvals</h2>
     <a href="{{ route('archived.index') }}" class="btn btn-secondary">
@@ -46,21 +47,21 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ route('residents.show', $resident) }}" 
-                                       class="btn btn-info" title="View">
-                                        <i class="bi bi-eye"></i>
+                                       class="btn btn-primary" title="View">
+                                        <i class="bi bi-eye"></i> View
                                     </a>
                                     <form action="{{ route('approvals.resident.approve', $resident) }}" 
                                           method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-success" title="Approve">
-                                            <i class="bi bi-check-circle"></i>
+                                            <i class="bi bi-check-circle"></i> Approve
                                         </button>
                                     </form>
                                     <button type="button" class="btn btn-danger" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#rejectResidentModal{{ $resident->id }}"
                                             title="Reject">
-                                        <i class="bi bi-x-circle"></i>
+                                        <i class="bi bi-x-circle"></i> Reject
                                     </button>
                                 </div>
                                 
@@ -137,21 +138,21 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ route('households.show', $household) }}" 
-                                       class="btn btn-info" title="View">
-                                        <i class="bi bi-eye"></i>
+                                       class="btn btn-primary" title="View">
+                                        <i class="bi bi-eye"></i> View
                                     </a>
                                     <form action="{{ route('approvals.household.approve', $household) }}" 
                                           method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-success" title="Approve">
-                                            <i class="bi bi-check-circle"></i>
+                                            <i class="bi bi-check-circle"></i> Approve
                                         </button>
                                     </form>
                                     <button type="button" class="btn btn-danger" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#rejectHouseholdModal{{ $household->id }}"
                                             title="Reject">
-                                        <i class="bi bi-x-circle"></i>
+                                        <i class="bi bi-x-circle"></i> Reject
                                     </button>
                                 </div>
                                 
@@ -195,5 +196,6 @@
             <p class="text-muted text-center mb-0">No pending households.</p>
         @endif
     </div>
+</div>
 </div>
 @endsection

@@ -45,18 +45,18 @@
                 <div class="row mb-3">
                     <div class="col-md-3">
                         <label class="form-label">First Name <span class="text-danger">*</span></label>
-                        <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror" value="{{ old('first_name') }}" required>
+                        <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror" value="{{ old('first_name') }}" required placeholder="Enter first name">
                         @error('first_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Middle Name</label>
-                        <input type="text" name="middle_name" class="form-control" value="{{ old('middle_name') }}">
+                        <input type="text" name="middle_name" class="form-control" value="{{ old('middle_name') }}" placeholder="Enter middle name">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                        <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror" value="{{ old('last_name') }}" required>
+                        <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror" value="{{ old('last_name') }}" required placeholder="Enter last name">
                         @error('last_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -99,6 +99,15 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">Select</option>
+                            <option value="active" {{ old('status')=='active' ? 'selected' : '' }}>Active</option>
+                            <option value="reallocated" {{ old('status')=='reallocated' ? 'selected' : '' }}>Reallocated</option>
+                            <option value="deceased" {{ old('status')=='deceased' ? 'selected' : '' }}>Deceased</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="row mb-3">
@@ -108,7 +117,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email') }}">
+                        <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="name@example.com">
                     </div>
                 </div>
 

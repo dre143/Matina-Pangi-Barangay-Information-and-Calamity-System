@@ -77,6 +77,11 @@ class HouseholdAndResidentSeeder extends Seeder
 
         $address = $addresses[($this->householdCounter - 2) % count($addresses)];
 
+        // Skip if household already exists (idempotent)
+        if (Household::where('household_id', $householdId)->exists()) {
+            return;
+        }
+
         // Create household
         $household = Household::create([
             'household_id' => $householdId,

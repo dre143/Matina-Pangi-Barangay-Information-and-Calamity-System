@@ -21,6 +21,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'status',
+        'assigned_app',
     ];
 
     /**
@@ -57,6 +59,26 @@ class User extends Authenticatable
     public function isStaff(): bool
     {
         return $this->role === 'staff';
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return in_array($this->role, ['super_admin','secretary']);
+    }
+
+    public function isCalamityHead(): bool
+    {
+        return $this->role === 'calamity_head';
+    }
+
+    public function isActive(): bool
+    {
+        return ($this->status ?? 'active') === 'active';
+    }
+
+    public function canAccessApp(string $app): bool
+    {
+        return ($this->assigned_app ?? null) === $app;
     }
 
     /**

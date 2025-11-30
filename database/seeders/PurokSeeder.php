@@ -116,7 +116,10 @@ class PurokSeeder extends Seeder
         ];
 
         foreach ($puroks as $purok) {
-            Purok::create($purok);
+            Purok::firstOrCreate(
+                ['purok_code' => $purok['purok_code']],
+                $purok
+            );
         }
 
         $this->command->info('✓ 10 Puroks seeded successfully!');

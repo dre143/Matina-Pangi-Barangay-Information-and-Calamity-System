@@ -5,369 +5,289 @@
 
 @push('styles')
 <style>
-    .card-header {
-        background: linear-gradient(135deg, rgba(58, 183, 149, 0.15), rgba(122, 229, 130, 0.1)) !important;
-        color: #1a5a45 !important;
-        border-bottom: 3px solid #3AB795 !important;
-    }
-    
-    .card-header h5,
-    .card-header h6 {
-        color: #1a5a45 !important;
-    }
-    
-    .card-header i {
-        color: #3AB795 !important;
-    }
-    
-    .card-body {
-        background: white !important;
-        color: #495057 !important;
-    }
-    
-    .card-body span,
-    .card-body li,
-    .card-body p {
-        color: #495057 !important;
-    }
-    
-    .card-body strong {
-        color: #2c3e50 !important;
-    }
-    
-    /* Force icon visibility on stat cards */
-    .stat-card .card-body > div {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-    }
-    
-    .stat-card .card-body i {
-        display: inline-block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    
-    .stat-icon i {
-        color: white !important;
-        font-size: 2rem !important;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
-        -webkit-text-stroke: 0.5px rgba(255,255,255,0.5);
-    }
+    .page-header { border-bottom: 1px solid #E5E7EB; max-width: 1200px; margin: 0 auto; }
+    .page-header h2 { color: #111827 !important; }
+    .card-header { background: #FFFFFF !important; border-bottom: 1px solid #E5E7EB !important; color: #1F2937 !important; }
+    .card-header h5,.card-header h6 { color: #1F2937 !important; }
+    .card-header i { color: #1E3A8A !important; }
+    .dashboard-content { margin: 0 !important; padding: 0 1.5rem !important; }
+    .dashboard-content.section-offset { padding-left: 0 !important; padding-right: 0 !important; margin: 0 auto !important; max-width: 1200px !important; position: relative !important; left: 0 !important; }
+    @media (max-width: 768px){ .dashboard-content.section-offset { left: 0 !important; } }
+    .stats-grid { display: grid !important; gap: 1.5rem !important; margin: 0 auto 2rem auto !important; max-width: 1200px !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; grid-auto-rows: 200px !important; align-items: stretch !important; justify-content: center !important; }
+    .stats-grid > div { display: grid !important; }
+    .stat-card { height: 100% !important; }
+    .stat-card .card-body { display: flex !important; align-items: flex-start !important; justify-content: flex-start !important; height: 100% !important; padding: 1.5rem !important; }
+    .stat-card h3 { font-size: 2.6rem !important; line-height: 1 !important; margin-top: -2px !important; }
+    .stat-icon { width: 52px !important; height: 52px !important; }
+    .stat-card .card-body .d-flex { align-items: stretch !important; gap: 0.75rem !important; height: 100% !important; }
+@media (max-width: 768px){ .stats-grid{ grid-template-columns: repeat(2,1fr) !important; } }
+@media (max-width: 480px){ .stats-grid{ grid-template-columns: 1fr !important; } }
+    .analytics-center { max-width: 1200px !important; margin: 0 auto !important; grid-template-columns: repeat(2, minmax(320px, 1fr)) !important; justify-content: center !important; align-items: start !important; grid-auto-rows: auto !important; }
+    .content-container.form-offset-right { padding-left: 24px !important; padding-right: 24px !important; }
+    .stat-icon { width: 40px; height: 40px; background: #F3F4F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #1E3A8A; font-size: 1.25rem; }
+    .action-button-wrapper .btn { border-radius: 8px !important; }
+    .chart-compact { display: flex !important; justify-content: center !important; }
+    .chart-compact canvas { width: 360px !important; max-width: 360px !important; }
+    .stat-card .card-body .d-flex { justify-content: space-between !important; }
+    .stat-card .card-body .d-flex > div:last-child { display: flex !important; flex-direction: column !important; justify-content: space-between !important; align-items: flex-end !important; height: 100% !important; flex: 1 1 auto !important; }
+    .stat-card .card-body .d-flex > div:last-child h3 { text-align: right !important; margin-top: 0 !important; }
+    .stat-card .card-body .d-flex > div:last-child p { margin-top: 0 !important; }
 </style>
 @endpush
 
 @section('content')
-<!-- Page Header -->
-<div class="page-header mb-4" style="margin-top: -2.5rem; padding-top: 1.5rem;">
+<div class="dashboard-content section-offset">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <div class="flex-grow-1">
+                <h2 class="mb-1">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </h2>
+                <p class="text-muted mb-0">Welcome back! Here's what's happening in Barangay Matina Pangi.</p>
+            </div>
+            <div class="ms-auto text-end">
+                <div class="badge bg-light text-dark px-3 py-2" style="font-size: 0.9rem;">
+                    <i class="bi bi-calendar3"></i> {{ now()->format('F d, Y') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Main Statistics Grid - Perfect 4-Card Rows -->
+<div class="stats-grid">
     <div>
-        <h2 class="mb-1">
-            <i class="bi bi-speedometer2"></i> Dashboard
-        </h2>
-        <p class="text-muted mb-0">Welcome back! Here's what's happening in Barangay Matina Pangi.</p>
-    </div>
-    <div class="text-end">
-        <div class="badge bg-light text-dark px-3 py-2" style="font-size: 0.9rem;">
-            <i class="bi bi-calendar3"></i> {{ now()->format('F d, Y') }}
+        <div class="card stat-card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-person-standing"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_teens']) }}</h3>
+                        <p class="text-muted mb-0">Teens (13–19)</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+    <div>
+        <div class="card stat-card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_voters']) }}</h3>
+                        <p class="text-muted mb-0">Registered Voters</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="card stat-card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-cash-coin"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_4ps']) }}</h3>
+                        <p class="text-muted mb-0">4Ps Beneficiaries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="card stat-card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-people"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['average_household_size'], 1) }}</h3>
+                        <p class="text-muted mb-0">Avg Household Size</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 
-<!-- Statistics Cards - Row 1 -->
-<div class="row g-4 mb-4">
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0">
+<!-- Row 2: Secondary Statistics (4 cards) -->
+<div class="stats-grid">
+    <div>
+        <div class="card stat-card h-100">
             <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-people"></i></div>
                     <div>
-                        <p class="stat-label mb-2">Total Residents</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_residents']) }}</h2>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_residents']) }}</h3>
+                        <p class="text-muted mb-0">Total Residents</p>
                     </div>
-                    <div class="stat-icon">
-                        <i class="bi bi-people-fill text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center text-success">
-                    <i class="bi bi-arrow-up-circle-fill me-1"></i>
-                    <small class="fw-semibold">Active Population</small>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #14b8a6 !important;">
+    <div>
+        <div class="card stat-card h-100">
             <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-house"></i></div>
                     <div>
-                        <p class="stat-label mb-2">Total Households</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_households']) }}</h2>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_households']) }}</h3>
+                        <p class="text-muted mb-0">Households</p>
                     </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #14b8a6, #0d9488);">
-                        <i class="bi bi-house-fill text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center text-success">
-                    <i class="bi bi-check-circle-fill me-1"></i>
-                    <small class="fw-semibold">Registered Families</small>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #f59e0b !important;">
+    <div>
+        <div class="card stat-card h-100">
             <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-person"></i></div>
                     <div>
-                        <p class="stat-label mb-2">Senior Citizens</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_senior_citizens']) }}</h2>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_senior_citizens']) }}</h3>
+                        <p class="text-muted mb-0">Senior Citizens</p>
                     </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                        <i class="bi bi-person-hearts" style="color: white !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center text-warning">
-                    <i class="bi bi-heart-fill me-1"></i>
-                    <small class="fw-semibold">60+ Years Old</small>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #3b82f6 !important;">
+    <div>
+        <div class="card stat-card h-100">
             <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon"><i class="bi bi-universal-access"></i></div>
                     <div>
-                        <p class="stat-label mb-2">PWD</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_pwd']) }}</h2>
+                        <h3 class="fw-bold mb-0">{{ number_format($stats['total_pwd']) }}</h3>
+                        <p class="text-muted mb-0">PWD Residents</p>
                     </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                        <i class="bi bi-universal-access text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center text-info">
-                    <i class="bi bi-shield-fill-check me-1"></i>
-                    <small class="fw-semibold">With Disabilities</small>
                 </div>
             </div>
         </div>
     </div>
-</div>
+    </div>
 
-<!-- Statistics Cards - Row 2 -->
-<div class="row g-4 mb-4">
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #8b5cf6 !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="stat-label mb-2">Teens (13-19)</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_teens']) }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                        <i class="bi bi-person-standing text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center" style="color: #8b5cf6;">
-                    <i class="bi bi-mortarboard-fill me-1"></i>
-                    <small class="fw-semibold">Youth Population</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #10b981 !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="stat-label mb-2">Registered Voters</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_voters']) }}</h2>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bi bi-check2-circle text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center text-success">
-                    <i class="bi bi-patch-check-fill me-1"></i>
-                    <small class="fw-semibold">Eligible to Vote</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #f97316 !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="stat-label mb-2">4Ps Beneficiaries</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['total_4ps']) }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #f97316, #ea580c);">
-                        <i class="bi bi-cash-coin text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center" style="color: #f97316;">
-                    <i class="bi bi-wallet2 me-1"></i>
-                    <small class="fw-semibold">Gov't Assistance</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100 border-0" style="border-left-color: #06b6d4 !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="stat-label mb-2">Avg Household Size</p>
-                        <h2 class="stat-value mb-0">{{ number_format($stats['average_household_size'], 1) }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
-                        <i class="bi bi-people text-white"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center" style="color: #06b6d4;">
-                    <i class="bi bi-graph-up me-1"></i>
-                    <small class="fw-semibold">Members per Family</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Information Cards Row -->
-<div class="row g-4 mb-4">
+<!-- Analytics & Distribution Section -->
+<div class="stats-grid analytics-center">
     <!-- Gender Distribution -->
-    <div class="col-lg-4">
-        <div class="card h-100 border-0">
-            <div class="card-header bg-gradient">
-                <h5 class="mb-0"><i class="bi bi-gender-ambiguous"></i> Gender Distribution</h5>
+    <div>
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-gender-ambiguous text-primary me-2"></i>Gender Distribution
+                </h5>
             </div>
-            <div class="card-body">
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-gender-male text-primary me-2" style="font-size: 1.25rem;"></i>
-                            <span class="fw-semibold">Male</span>
-                        </div>
-                        <strong class="text-primary">{{ number_format($stats['male_count']) }}</strong>
-                    </div>
-                    <div class="progress" style="height: 12px; border-radius: 10px;">
-                        <div class="progress-bar" style="width: {{ $stats['total_residents'] > 0 ? ($stats['male_count'] / $stats['total_residents'] * 100) : 0 }}%; background: linear-gradient(90deg, #3b82f6, #2563eb);"></div>
-                    </div>
-                    <small class="text-muted">{{ $stats['total_residents'] > 0 ? number_format(($stats['male_count'] / $stats['total_residents'] * 100), 1) : 0 }}%</small>
-                </div>
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-gender-female text-danger me-2" style="font-size: 1.25rem;"></i>
-                            <span class="fw-semibold">Female</span>
-                        </div>
-                        <strong class="text-danger">{{ number_format($stats['female_count']) }}</strong>
-                    </div>
-                    <div class="progress" style="height: 12px; border-radius: 10px;">
-                        <div class="progress-bar" style="width: {{ $stats['total_residents'] > 0 ? ($stats['female_count'] / $stats['total_residents'] * 100) : 0 }}%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div>
-                    </div>
-                    <small class="text-muted">{{ $stats['total_residents'] > 0 ? number_format(($stats['female_count'] / $stats['total_residents'] * 100), 1) : 0 }}%</small>
+            <div class="card-body p-4">
+                <div class="chart-compact">
+                    <canvas id="genderChart" height="120"></canvas>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Age Distribution -->
-    <div class="col-lg-4">
-        <div class="card h-100 border-0">
-            <div class="card-header bg-gradient">
-                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Age Distribution</h5>
+    <div>
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-graph-up text-primary me-2"></i>Age Distribution
+                </h5>
             </div>
-            <div class="card-body">
-                <div class="d-flex flex-column gap-3">
-                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(16, 185, 129, 0.05);">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: linear-gradient(135deg, #10b981, #059669);">
-                                <i class="bi bi-emoji-smile text-white"></i>
-                            </div>
-                            <span class="fw-semibold">Children (0-12)</span>
-                        </div>
-                        <strong>{{ number_format($ageDistribution['children']) }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(139, 92, 246, 0.05);">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                                <i class="bi bi-mortarboard text-white"></i>
-                            </div>
-                            <span class="fw-semibold">Teens (13-19)</span>
-                        </div>
-                        <strong>{{ number_format($ageDistribution['teens']) }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(59, 130, 246, 0.05);">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                                <i class="bi bi-briefcase text-white"></i>
-                            </div>
-                            <span class="fw-semibold">Adults (20-59)</span>
-                        </div>
-                        <strong>{{ number_format($ageDistribution['adults']) }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(245, 158, 11, 0.05);">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: linear-gradient(135deg, #f59e0b, #d97706);">
-                                <i class="bi bi-heart text-white"></i>
-                            </div>
-                            <span class="fw-semibold">Seniors (60+)</span>
-                        </div>
-                        <strong>{{ number_format($ageDistribution['seniors']) }}</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div class="col-lg-4">
-        <div class="card h-100 border-0">
-            <div class="card-header bg-gradient">
-                <h5 class="mb-0"><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-flex flex-column gap-3">
-                    @if(auth()->user()->isSecretary())
-                        <a href="{{ route('households.create') }}" class="btn btn-gradient d-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-plus-circle-fill"></i>
-                            <span>Register Household</span>
-                        </a>
-                        <a href="{{ route('households.index') }}" class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-person-plus-fill"></i>
-                            <span>Add Resident</span>
-                        </a>
-                        <a href="{{ route('certificates.create') }}" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-file-earmark-text-fill"></i>
-                            <span>Issue Certificate</span>
-                        </a>
-                    @endif
-                    <a href="{{ route('census.index') }}" class="btn btn-outline-success d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-bar-chart-fill"></i>
-                        <span>View Census Report</span>
-                    </a>
+            <div class="card-body p-4">
+                <div class="chart-compact">
+                    <canvas id="ageChart" height="120"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Residents -->
-@if($recentResidents->count() > 0)
-<div class="row">
+<!-- Quick Actions Section -->
+<div class="row g-4 mt-4 mb-5">
     <div class="col-12">
-        <div class="card border-0">
-            <div class="card-header bg-gradient d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recently Registered Residents</h5>
-                <a href="{{ route('residents.index') }}" class="btn btn-sm btn-light">
-                    View All <i class="bi bi-arrow-right"></i>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-lightning-charge text-warning me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body p-5">
+                <div class="row g-4">
+                    @if(auth()->user()->isSecretary())
+                        <div class="col-lg-3 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('households.create') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-house-add"></i>
+                                    <span class="fw-semibold">Register Household</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('households.index') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-person-plus"></i>
+                                    <span class="fw-semibold">Add Resident</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('certificates.create') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    <span class="fw-semibold">Issue Certificate</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('census.index') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-bar-chart"></i>
+                                    <span class="fw-semibold">View Census</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('settings.users.index') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-gear"></i>
+                                    <span class="fw-semibold">Manage Users</span>
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="col-lg-6 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('census.index') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-bar-chart"></i>
+                                    <span class="fw-semibold">View Census Report</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="action-button-wrapper">
+                                <a href="{{ route('residents.index') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="min-height: 56px;">
+                                    <i class="bi bi-people"></i>
+                                    <span class="fw-semibold">View Residents</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Residents Section -->
+@if($recentResidents->count() > 0)
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-clock-history text-info me-2"></i>Recently Registered Residents
+                </h5>
+                <a href="{{ route('residents.index') }}" class="btn btn-sm btn-outline-primary">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
             <div class="card-body p-0">
@@ -392,9 +312,6 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 600; font-size: 0.75rem;">
-                                            {{ strtoupper(substr($resident->first_name, 0, 1)) }}{{ strtoupper(substr($resident->last_name, 0, 1)) }}
-                                        </div>
                                         <a href="{{ route('residents.show', $resident) }}" class="text-decoration-none fw-semibold">
                                             {{ $resident->full_name }}
                                         </a>
@@ -437,4 +354,61 @@
     </div>
 </div>
 @endif
+
+</div> <!-- End dashboard-content wrapper -->
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  const deepBlue = '#1E3A8A';
+  const softGray = '#F3F4F6';
+  const grid = '#E5E7EB';
+  const genderCtx = document.getElementById('genderChart');
+  if (genderCtx) {
+    new Chart(genderCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Male','Female'],
+        datasets: [{
+          data: [
+            {{ (int)($stats['male_count'] ?? 0) }},
+            {{ (int)($stats['female_count'] ?? 0) }}
+          ],
+          backgroundColor: [deepBlue, softGray],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '60%'
+      }
+    });
+  }
+  const ageCtx = document.getElementById('ageChart');
+  if (ageCtx) {
+    new Chart(ageCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Children','Teens','Adults','Seniors'],
+        datasets: [{
+          label: 'Count',
+          data: [
+            {{ (int)($ageDistribution['children'] ?? 0) }},
+            {{ (int)($ageDistribution['teens'] ?? 0) }},
+            {{ (int)($ageDistribution['adults'] ?? 0) }},
+            {{ (int)($ageDistribution['seniors'] ?? 0) }}
+          ],
+          backgroundColor: deepBlue
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: grid } }, y: { beginAtZero: true, grid: { color: grid } } }
+      }
+    });
+  }
+})();
+</script>
+@endpush

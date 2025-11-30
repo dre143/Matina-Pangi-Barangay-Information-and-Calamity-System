@@ -4,33 +4,32 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PwdSupport extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'pwd_support';
+    protected $table = 'pwd_supports';
 
     protected $fillable = [
         'resident_id',
-        'disability_type',
-        'disability_level',
         'pwd_id_number',
+        'disability_type',
+        'medical_condition',
+        'assistive_device',
+        'aid_status',
+        'date_issued',
         'pwd_id_expiry',
-        'date_registered',
-        'disability_description',
-        'assistance_received',
-        'medical_needs',
-        'notes',
-        'assistive_devices_needed',
-        'support_services_received',
-        'caregiver_name',
-        'caregiver_contact',
+        'remarks',
+        'status',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
         'pwd_id_expiry' => 'date',
-        'date_registered' => 'date',
+        'date_issued' => 'date',
     ];
 
     /**

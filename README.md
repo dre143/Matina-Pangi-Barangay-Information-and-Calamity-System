@@ -219,9 +219,7 @@ This system features a **complete modern redesign** with:
 
 ## 💬 Developer
 
-**Developed by:** Maddy Cordova  
-**Facebook:** [https://www.facebook.com/maddy.cordova.2025](https://www.facebook.com/maddy.cordova.2025)  
-**Location:** Barangay Matina Pangi, Davao City  
+**Maintained by:** dre143
 
 ---
 
@@ -229,7 +227,7 @@ This system features a **complete modern redesign** with:
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-**Copyright © 2025 Maddy Cordova**
+**Copyright © 2025 dre143**
 
 ---
 

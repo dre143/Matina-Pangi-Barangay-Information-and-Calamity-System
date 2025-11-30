@@ -3,6 +3,7 @@
 @section('title', 'Household Events History')
 
 @section('content')
+<div class="section-offset">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0"><i class="bi bi-calendar-event"></i> Household Events History</h2>
 </div>
@@ -114,5 +115,6 @@
         </div>
         @endif
     </div>
+</div>
 </div>
 @endsection

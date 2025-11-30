@@ -14,9 +14,9 @@
 </div>
 
 <!-- Header with Actions -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-house-door-fill"></i> Household {{ $household->household_id }}</h2>
-    <div class="btn-group">
+<div class="d-flex justify-content-between align-items-end mb-2">
+    <h2><i class="bi bi-house-door-fill"></i> Household <span class="no-wrap">{{ $household->household_id }}</span></h2>
+    <div class="btn-group action-buttons" style="max-width: 100%;">
         <a href="{{ route('household-events.by-household', $household) }}" class="btn btn-info">
             <i class="bi bi-calendar-event"></i> View Events
         </a>
@@ -32,11 +32,11 @@
             <a href="{{ route('households.edit', $household) }}" class="btn btn-warning">
                 <i class="bi bi-pencil-fill"></i> Edit
             </a>
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#archiveModal">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#archiveModal">
                 <i class="bi bi-archive-fill"></i> Archive
             </button>
         @endif
-        <a href="{{ route('households.index') }}" class="btn btn-secondary">
+        <a href="{{ route('households.index') }}" class="btn btn-secondary btn-back">
             <i class="bi bi-arrow-left"></i> Back
         </a>
     </div>
@@ -49,7 +49,7 @@
             <div class="col-md-8">
                 <h4 class="mb-0">
                     <i class="bi bi-house-fill"></i> 
-                    {{ $household->household_id }}
+                    <span class="no-wrap">{{ $household->household_id }}</span>
                     @if($household->officialHead)
                         - {{ $household->officialHead->full_name }}
                         <span class="badge bg-warning text-dark ms-2">
@@ -398,7 +398,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form action="{{ route('households.archive', $household) }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-danger">
+                    <button type="submit" class="btn btn-secondary">
                         <i class="bi bi-archive-fill"></i> Archive
                     </button>
                 </form>

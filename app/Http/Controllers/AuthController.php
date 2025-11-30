@@ -39,6 +39,22 @@ class AuthController extends Controller
                 auth()->user()->name . ' logged in'
             );
 
+            $user = auth()->user();
+            if (($user->status ?? 'active') === 'deactivated') {
+                $app = $user->assigned_app;
+                if ($app) {
+                    return redirect()->route('apps.' . $app);
+                }
+                Auth::logout();
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Your account is deactivated. Contact secretary for access.',
+                ]);
+            }
+
+            if ($user->role === 'staff') {
+                return redirect()->route('apps.profiling_only');
+            }
+
             return redirect()->intended(route('dashboard'));
         }
 

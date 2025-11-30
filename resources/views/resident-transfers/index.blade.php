@@ -2,7 +2,12 @@
 
 @section('title', 'Resident Transfers')
 
+@push('styles')
+<style></style>
+@endpush
+
 @section('content')
+<div class="section-offset">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0"><i class="bi bi-arrow-left-right"></i> Resident Transfers</h2>
     <div class="btn-group">
@@ -17,37 +22,97 @@
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" action="{{ route('resident-transfers.index') }}" class="row g-3">
-            <div class="col-md-4">
-                <input type="text" name="search" class="form-control" placeholder="Search by resident name..." value="{{ request('search') }}">
-            </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select">
-                    <option value="">All Status</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select name="type" class="form-select">
-                    <option value="">All Types</option>
-                    <option value="internal" {{ request('type') == 'internal' ? 'selected' : '' }}>Internal Transfer</option>
-                    <option value="external" {{ request('type') == 'external' ? 'selected' : '' }}>External Transfer</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+@php
+$transferSearchFields = [
+    [
+        'name' => 'search',
+        'type' => 'text',
+        'label' => 'Resident Name',
+        'placeholder' => 'Search by resident name...',
+        'col' => 4
+    ],
+    [
+        'name' => 'status',
+        'type' => 'select',
+        'label' => 'Status',
+        'placeholder' => 'All Status',
+        'options' => [
+            'pending' => 'Pending',
+            'approved' => 'Approved',
+            'completed' => 'Completed',
+            'rejected' => 'Rejected'
+        ],
+        'col' => 3
+    ],
+    [
+        'name' => 'type',
+        'type' => 'select',
+        'label' => 'Transfer Type',
+        'placeholder' => 'All Types',
+        'options' => [
+            'internal' => 'Internal Transfer',
+            'external' => 'External Transfer'
+        ],
+        'col' => 3
+    ],
+    [
+        'name' => 'reason',
+        'type' => 'select',
+        'label' => 'Reason',
+        'placeholder' => 'All Reasons',
+        'options' => [
+            'marriage' => 'Marriage',
+            'work' => 'Work/Employment',
+            'education' => 'Education',
+            'family' => 'Family Reasons',
+            'housing' => 'Housing',
+            'other' => 'Other'
+        ],
+        'col' => 2
+    ]
+];
+@endphp
+
+<x-search-filter 
+    :route="route('resident-transfers.index')" 
+    title="Search & Filter Resident Transfers"
+    icon="bi-arrow-left-right"
+    :fields="$transferSearchFields"
+    :advanced="true">
+    
+    <x-slot name="advancedSlot">
+        <div class="col-md-3">
+            <label class="form-label small">Transfer Date From</label>
+            <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Transfer Date To</label>
+            <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Processed By</label>
+            <select class="form-select" name="processed_by">
+                <option value="">All Staff</option>
+                @if(isset($staff))
+                    @foreach($staff as $member)
+                        <option value="{{ $member->id }}" {{ request('processed_by') == $member->id ? 'selected' : '' }}>
+                            {{ $member->name }}
+                        </option>
+                    @endforeach
+                @endif
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">From Purok</label>
+            <select class="form-select" name="from_purok">
+                <option value="">All Puroks</option>
+                @for($i = 1; $i <= 10; $i++)
+                    <option value="Purok {{ $i }}" {{ request('from_purok') == "Purok $i" ? 'selected' : '' }}>Purok {{ $i }}</option>
+                @endfor
+            </select>
+        </div>
+    </x-slot>
+</x-search-filter>
 
 <!-- Transfers Table -->
 <div class="card">
@@ -134,7 +199,7 @@
                             <td>
                                 <div class="action-btn-group">
                                     <a href="{{ route('resident-transfers.show', $transfer) }}" class="btn btn-sm btn-primary" title="View Details">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye"></i> View
                                     </a>
                                 </div>
                             </td>
@@ -163,5 +228,6 @@
         </div>
         @endif
     </div>
+</div>
 </div>
 @endsection

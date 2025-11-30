@@ -48,17 +48,19 @@ return new class extends Migration
             }
         });
         
-        // Update event_type enum to include more types
-        DB::statement("ALTER TABLE household_events MODIFY event_type ENUM(
-            'head_change',
-            'member_added', 
-            'member_removed',
-            'household_split',
-            'household_merged',
-            'new_family_created',
-            'relocation',
-            'dissolution'
-        )");
+        // Update event_type enum to include more types (MySQL only)
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE household_events MODIFY event_type ENUM(
+                'head_change',
+                'member_added', 
+                'member_removed',
+                'household_split',
+                'household_merged',
+                'new_family_created',
+                'relocation',
+                'dissolution'
+            )");
+        }
     }
 
     /**

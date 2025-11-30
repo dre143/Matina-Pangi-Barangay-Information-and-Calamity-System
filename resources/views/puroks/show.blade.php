@@ -122,8 +122,8 @@
                                     <td>{{ $household->total_members }}</td>
                                     <td>{{ Str::limit($household->address, 30) }}</td>
                                     <td>
-                                        <a href="{{ route('households.show', $household) }}" class="btn btn-sm btn-info">
-                                            <i class="bi bi-eye"></i>
+                                        <a href="{{ route('households.show', $household) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> View
                                         </a>
                                     </td>
                                 </tr>

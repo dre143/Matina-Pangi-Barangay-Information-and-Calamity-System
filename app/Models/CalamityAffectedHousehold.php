@@ -23,6 +23,7 @@ class CalamityAffectedHousehold extends Model
         'relief_date',
         'needs',
         'assessed_by',
+        'evacuation_status',
     ];
 
     protected $casts = [
@@ -49,6 +50,11 @@ class CalamityAffectedHousehold extends Model
     public function assessor()
     {
         return $this->belongsTo(User::class, 'assessed_by');
+    }
+
+    public function rescueOperations()
+    {
+        return $this->hasMany(RescueOperation::class, 'calamity_affected_household_id');
     }
 
     /**

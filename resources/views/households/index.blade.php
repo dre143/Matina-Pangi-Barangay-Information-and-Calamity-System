@@ -3,6 +3,7 @@
 @section('title', 'Households')
 
 @section('content')
+<div class="section-offset">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-house"></i> Households</h2>
     @if(auth()->user()->isSecretary())
@@ -12,97 +13,113 @@
     @endif
 </div>
 
-<!-- Search and Filter -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0"><i class="bi bi-funnel-fill"></i> Search & Filter Households</h5>
-    </div>
-    <div class="card-body">
-        <form action="{{ route('households.index') }}" method="GET">
-            <div class="row g-3">
-                <!-- Household ID / Address Search -->
-                <div class="col-md-4">
-                    <label class="form-label small">Household ID / Address</label>
-                    <input type="text" class="form-control" name="search" 
-                           placeholder="Search by ID or Address..." 
-                           value="{{ request('search') }}">
-                </div>
+@php
+$searchFields = [
+    [
+        'name' => 'search',
+        'type' => 'text',
+        'label' => 'Household ID / Address',
+        'placeholder' => 'Search by ID or Address...',
+        'col' => 4
+    ],
+    [
+        'name' => 'head_name',
+        'type' => 'text',
+        'label' => 'Primary Head Name',
+        'placeholder' => 'Search by head name...',
+        'col' => 4
+    ],
+    [
+        'name' => 'purok_id',
+        'type' => 'select',
+        'label' => 'Purok',
+        'placeholder' => 'All Puroks',
+        'options' => $puroks->pluck('purok_name', 'id')->toArray(),
+        'col' => 4
+    ],
+    [
+        'name' => 'beneficiary_type',
+        'type' => 'select',
+        'label' => 'Beneficiary Type',
+        'placeholder' => 'All Types',
+        'options' => [
+            'pwd' => 'PWD',
+            '4ps' => '4Ps Beneficiary',
+            'senior' => 'Senior Citizen',
+            'teen' => 'Teen'
+        ],
+        'col' => 3
+    ],
+    [
+        'name' => 'type',
+        'type' => 'select',
+        'label' => 'Household Type',
+        'placeholder' => 'All Types',
+        'options' => [
+            'nuclear' => 'Nuclear Family',
+            'extended' => 'Extended Family',
+            'single' => 'Single Person',
+            'other' => 'Other'
+        ],
+        'col' => 3
+    ],
+    [
+        'name' => 'status',
+        'type' => 'select',
+        'label' => 'Status',
+        'placeholder' => 'All Status',
+        'options' => [
+            'active' => 'Active',
+            'inactive' => 'Inactive',
+            'pending' => 'Pending Approval'
+        ],
+        'col' => 3
+    ],
+    [
+        'name' => 'member_count_min',
+        'type' => 'number',
+        'label' => 'Min Members',
+        'placeholder' => 'Min',
+        'min' => 1,
+        'col' => 2
+    ],
+    [
+        'name' => 'member_count_max',
+        'type' => 'number',
+        'label' => 'Max Members',
+        'placeholder' => 'Max',
+        'min' => 1,
+        'col' => 1
+    ]
+];
+@endphp
 
-                <!-- Primary Head Name -->
-                <div class="col-md-4">
-                    <label class="form-label small">Primary Head Name</label>
-                    <input type="text" class="form-control" name="head_name" 
-                           placeholder="Search by head name..." 
-                           value="{{ request('head_name') }}">
-                </div>
-
-                <!-- Purok Filter -->
-                <div class="col-md-4">
-                    <label class="form-label small">Purok</label>
-                    <select class="form-select" name="purok_id">
-                        <option value="">All Puroks</option>
-                        @foreach($puroks as $purok)
-                            <option value="{{ $purok->id }}" {{ request('purok_id') == $purok->id ? 'selected' : '' }}>
-                                {{ $purok->purok_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Beneficiary Type -->
-                <div class="col-md-3">
-                    <label class="form-label small">Beneficiary Type</label>
-                    <select class="form-select" name="beneficiary_type">
-                        <option value="">All</option>
-                        <option value="pwd" {{ request('beneficiary_type') == 'pwd' ? 'selected' : '' }}>PWD</option>
-                        <option value="4ps" {{ request('beneficiary_type') == '4ps' ? 'selected' : '' }}>4Ps</option>
-                        <option value="senior" {{ request('beneficiary_type') == 'senior' ? 'selected' : '' }}>Senior Citizen</option>
-                        <option value="teen" {{ request('beneficiary_type') == 'teen' ? 'selected' : '' }}>Teen</option>
-                    </select>
-                </div>
-
-                <!-- Household Type -->
-                <div class="col-md-3">
-                    <label class="form-label small">Household Type</label>
-                    <select class="form-select" name="type">
-                        <option value="">All Types</option>
-                        <option value="solo" {{ request('type') == 'solo' ? 'selected' : '' }}>Solo</option>
-                        <option value="family" {{ request('type') == 'family' ? 'selected' : '' }}>Family</option>
-                        <option value="extended" {{ request('type') == 'extended' ? 'selected' : '' }}>Extended</option>
-                    </select>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="col-md-6">
-                    <label class="form-label small">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-search"></i> Search
-                        </button>
-                        <a href="{{ route('households.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Clear
-                        </a>
-                        @if(auth()->user()->isSecretary())
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="bi bi-download"></i> Export
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('households.export.pdf') }}">
-                                        <i class="bi bi-file-pdf"></i> Export to PDF
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('households.export.excel') }}">
-                                        <i class="bi bi-file-excel"></i> Export to Excel
-                                    </a></li>
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+<x-search-filter 
+    :route="route('households.index')" 
+    title="Search & Filter Households"
+    icon="bi-house-fill"
+    :fields="$searchFields"
+    :advanced="true">
+    
+    <x-slot name="advancedSlot">
+        <div class="col-md-4">
+            <label class="form-label small">Date Registered From</label>
+            <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small">Date Registered To</label>
+            <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small">Has Pregnant Member</label>
+            <select class="form-select" name="has_pregnant">
+                <option value="">All</option>
+                <option value="yes" {{ request('has_pregnant') == 'yes' ? 'selected' : '' }}>Yes</option>
+                <option value="no" {{ request('has_pregnant') == 'no' ? 'selected' : '' }}>No</option>
+            </select>
+        </div>
+    </x-slot>
+</x-search-filter>
 
 <!-- Households Table -->
 <div class="card">
@@ -129,14 +146,11 @@
                             </td>
                             <td>
                                 @if($household->officialHead)
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-star-fill text-warning me-2"></i>
-                                        <div>
-                                            <a href="{{ route('residents.show', $household->officialHead) }}" class="text-decoration-none">
-                                                <strong>{{ $household->officialHead->full_name }}</strong>
-                                            </a>
-                                            <br><small class="text-muted">{{ $household->officialHead->age }} yrs, {{ ucfirst($household->officialHead->sex) }}</small>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2 text-nowrap">
+                                        <a href="{{ route('residents.show', $household->officialHead) }}" class="text-decoration-none">
+                                            <strong>{{ $household->officialHead->full_name }}</strong>
+                                        </a>
+                                        <small class="text-muted">{{ $household->officialHead->age }} yrs, {{ ucfirst($household->officialHead->sex) }}</small>
                                     </div>
                                 @elseif($household->head)
                                     <a href="{{ route('residents.show', $household->head) }}">
@@ -173,7 +187,7 @@
                                         {{ ucfirst($household->housing_type) }}
                                     </span>
                                     @if($household->has_electricity)
-                                        <br><i class="bi bi-lightning-fill text-warning"></i> <span class="text-muted">Electricity</span>
+                                        <br><span class="text-muted">Electricity</span>
                                     @endif
                                 </small>
                             </td>
@@ -185,20 +199,20 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ route('households.show', $household) }}" 
-                                       class="btn btn-info" title="View">
-                                        <i class="bi bi-eye"></i>
+                                       class="btn btn-primary" title="View">
+                                        <i class="bi bi-eye"></i> View
                                     </a>
                                     @if(auth()->user()->isSecretary())
                                         <a href="{{ route('households.edit', $household) }}" 
                                            class="btn btn-warning" title="Edit">
-                                            <i class="bi bi-pencil"></i>
+                                            <i class="bi bi-pencil"></i> Edit
                                         </a>
                                         <form action="{{ route('households.archive', $household) }}" 
                                               method="POST" class="d-inline"
                                               onsubmit="return confirm('Are you sure you want to archive this household? All residents will also be archived.')">
                                             @csrf
                                             <button type="submit" class="btn btn-secondary" title="Archive">
-                                                <i class="bi bi-archive"></i>
+                                                <i class="bi bi-archive"></i> Archive
                                             </button>
                                         </form>
                                     @endif
@@ -226,4 +240,13 @@
         @endif
     </div>
 </div>
+</div>
 @endsection
+
+@push('styles')
+<style>
+.table .btn-group { display: inline-flex !important; flex-wrap: nowrap !important; }
+.table .btn-group .btn { padding: 0.375rem 0.5rem !important; border-radius: 6px !important; white-space: nowrap !important; }
+.table .btn-group form { display: inline-block !important; }
+</style>
+@endpush

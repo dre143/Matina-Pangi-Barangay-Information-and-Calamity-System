@@ -11,12 +11,7 @@
         @endif
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    
 
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show">
@@ -54,18 +49,18 @@
                     </div>
                     @endif
 
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('puroks.show', $purok) }}" class="btn btn-sm btn-info">
+                    <div class="d-flex flex-nowrap gap-2 overflow-auto">
+                        <a href="{{ route('puroks.show', $purok) }}" class="btn btn-sm btn-primary">
                             <i class="bi bi-eye"></i> View
                         </a>
                         @if(auth()->user()->isSecretary())
                         <a href="{{ route('puroks.edit', $purok) }}" class="btn btn-sm btn-warning">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
-                        <form action="{{ route('puroks.update-counts', $purok) }}" method="POST" class="d-inline">
+                        <form action="{{ route('puroks.update-counts', $purok) }}" method="POST" class="d-inline m-0">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-secondary" title="Update Counts">
-                                <i class="bi bi-arrow-clockwise"></i>
+                                <i class="bi bi-arrow-clockwise"></i> Update Counts
                             </button>
                         </form>
                         @endif

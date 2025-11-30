@@ -151,6 +151,14 @@ class Resident extends Model
     }
 
     /**
+     * Get the maternal health record for this resident
+     */
+    public function maternalHealth()
+    {
+        return $this->hasOne(MaternalHealth::class, 'resident_id');
+    }
+
+    /**
      * User who created this resident
      */
     public function creator()
@@ -415,6 +423,11 @@ class Resident extends Model
     public function seniorHealth()
     {
         return $this->hasOne(SeniorHealth::class);
+    }
+
+    public function childHealth()
+    {
+        return $this->hasOne(ChildHealth::class);
     }
 
     /**

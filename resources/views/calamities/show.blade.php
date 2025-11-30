@@ -154,6 +154,58 @@
                 <p><strong>Total Estimated Damage:</strong><br>₱{{ number_format($calamity->affectedHouseholds->sum('estimated_damage_cost'), 2) }}</p>
             </div>
         </div>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-images"></i> Photos</h5>
+            </div>
+            <div class="card-body">
+                @php $photos = is_array($calamity->photos) ? $calamity->photos : []; @endphp
+                @if(count($photos))
+                <div class="row g-2">
+                    @foreach($photos as $p)
+                    <div class="col-4">
+                        <a href="#" class="d-block" data-bs-toggle="modal" data-bs-target="#photoModal" data-src="{{ asset('storage/calamity_incident_photos/' . $p) }}">
+                            <img src="{{ asset('storage/calamity_incident_photos/' . $p) }}" class="img-fluid rounded" style="object-fit: cover; height: 80px; width: 100%;" alt="Photo">
+                        </a>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div class="text-muted">No photos uploaded.</div>
+                @endif
+            </div>
+        </div>
     </div>
+</div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var modalEl = document.getElementById('photoModal');
+  var imgEl = document.getElementById('photoModalImg');
+  var dlEl = document.getElementById('photoDownloadLink');
+  if (modalEl) {
+    modalEl.addEventListener('show.bs.modal', function(e){
+      var trigger = e.relatedTarget;
+      if (trigger && trigger.dataset && trigger.dataset.src) {
+        imgEl && (imgEl.src = trigger.dataset.src);
+        dlEl && (dlEl.href = trigger.dataset.src);
+      }
+    });
+  }
+});
+</script>
+@endpush
+<div class="modal fade" id="photoModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <img id="photoModalImg" src="" class="img-fluid w-100" alt="Photo">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <a id="photoDownloadLink" href="#" class="btn btn-primary" download><i class="bi bi-download"></i> Download</a>
+      </div>
+    </div>
+  </div>
 </div>
 @endsection

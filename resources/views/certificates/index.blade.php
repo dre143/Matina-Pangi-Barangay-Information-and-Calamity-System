@@ -3,6 +3,7 @@
 @section('title', 'Certificates - Barangay Matina Pangi')
 
 @section('content')
+<div class="section-offset">
 <!-- Page Header -->
 <div class="page-header">
     <div>
@@ -169,5 +170,6 @@
         </div>
         @endif
     </div>
+</div>
 </div>
 @endsection

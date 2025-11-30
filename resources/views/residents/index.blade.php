@@ -11,10 +11,12 @@
         display: inline-flex !important;
         flex-wrap: nowrap !important;
     }
+    
 </style>
 @endpush
 
 @section('content')
+<div class="section-offset">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-people"></i> Residents</h2>
     <div class="alert alert-info mb-0 py-2 px-3">
@@ -22,52 +24,94 @@
     </div>
 </div>
 
-<!-- Search and Filter -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form action="{{ route('residents.index') }}" method="GET" class="row g-3">
-            <div class="col-md-4">
-                <input type="text" class="form-control" name="search" 
-                       placeholder="Search by name or ID..." 
-                       value="{{ request('search') }}">
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" name="category">
-                    <option value="">All Categories</option>
-                    <option value="pwd" {{ request('category') == 'pwd' ? 'selected' : '' }}>PWD</option>
-                    <option value="senior" {{ request('category') == 'senior' ? 'selected' : '' }}>Senior Citizens</option>
-                    <option value="teen" {{ request('category') == 'teen' ? 'selected' : '' }}>Teens</option>
-                    <option value="voter" {{ request('category') == 'voter' ? 'selected' : '' }}>Voters</option>
-                    <option value="4ps" {{ request('category') == '4ps' ? 'selected' : '' }}>4Ps Beneficiaries</option>
-                    <option value="head" {{ request('category') == 'head' ? 'selected' : '' }}>Household Heads</option>
-                </select>
-            </div>
-            <div class="col-md-5">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Search
-                </button>
-                <a href="{{ route('residents.index') }}" class="btn btn-secondary">
-                    <i class="bi bi-x-circle"></i> Clear
-                </a>
-                @if(auth()->user()->isSecretary())
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-download"></i> Export
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('residents.export.pdf') }}">
-                                <i class="bi bi-file-pdf"></i> Export to PDF
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ route('residents.export.excel') }}">
-                                <i class="bi bi-file-excel"></i> Export to Excel
-                            </a></li>
-                        </ul>
-                    </div>
-                @endif
-            </div>
-        </form>
-    </div>
-</div>
+@php
+$residentSearchFields = [
+    [
+        'name' => 'search',
+        'type' => 'text',
+        'label' => 'Name or ID',
+        'placeholder' => 'Search by name or ID...',
+        'col' => 4
+    ],
+    [
+        'name' => 'category',
+        'type' => 'select',
+        'label' => 'Category',
+        'placeholder' => 'All Categories',
+        'options' => [
+            'pwd' => 'PWD',
+            'senior' => 'Senior Citizens',
+            'teen' => 'Teens',
+            'voter' => 'Voters',
+            '4ps' => '4Ps Beneficiaries',
+            'head' => 'Household Heads'
+        ],
+        'col' => 3
+    ],
+    [
+        'name' => 'gender',
+        'type' => 'select',
+        'label' => 'Gender',
+        'placeholder' => 'All Genders',
+        'options' => [
+            'Male' => 'Male',
+            'Female' => 'Female'
+        ],
+        'col' => 2
+    ],
+    [
+        'name' => 'civil_status',
+        'type' => 'select',
+        'label' => 'Civil Status',
+        'placeholder' => 'All Status',
+        'options' => [
+            'Single' => 'Single',
+            'Married' => 'Married',
+            'Widowed' => 'Widowed',
+            'Separated' => 'Separated'
+        ],
+        'col' => 3
+    ]
+];
+@endphp
+
+<x-search-filter 
+    :route="route('residents.index')" 
+    title="Search & Filter Residents"
+    icon="bi-people-fill"
+    :fields="$residentSearchFields"
+    :advanced="true">
+    
+    <x-slot name="advancedSlot">
+        <div class="col-md-3">
+            <label class="form-label small">Age From</label>
+            <input type="number" class="form-control" name="age_from" value="{{ request('age_from') }}" min="0" max="120">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Age To</label>
+            <input type="number" class="form-control" name="age_to" value="{{ request('age_to') }}" min="0" max="120">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Purok</label>
+            <select class="form-select" name="purok">
+                <option value="">All Puroks</option>
+                @for($i = 1; $i <= 10; $i++)
+                    <option value="Purok {{ $i }}" {{ request('purok') == "Purok $i" ? 'selected' : '' }}>Purok {{ $i }}</option>
+                @endfor
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Employment Status</label>
+            <select class="form-select" name="employment">
+                <option value="">All</option>
+                <option value="employed" {{ request('employment') == 'employed' ? 'selected' : '' }}>Employed</option>
+                <option value="unemployed" {{ request('employment') == 'unemployed' ? 'selected' : '' }}>Unemployed</option>
+                <option value="student" {{ request('employment') == 'student' ? 'selected' : '' }}>Student</option>
+                <option value="retired" {{ request('employment') == 'retired' ? 'selected' : '' }}>Retired</option>
+            </select>
+        </div>
+    </x-slot>
+</x-search-filter>
 
 <!-- Residents Table -->
 <div class="card">
@@ -141,17 +185,17 @@
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('residents.show', $resident) }}" 
-                                       class="btn btn-info" title="View">
-                                        <i class="bi bi-eye"></i>
+                                       class="btn btn-primary" title="View">
+                                        <i class="bi bi-eye"></i> View
                                     </a>
                                     @if(auth()->user()->isSecretary())
                                         <a href="{{ route('residents.edit', $resident) }}" 
                                            class="btn btn-warning" title="Edit">
-                                            <i class="bi bi-pencil"></i>
+                                            <i class="bi bi-pencil"></i> Edit
                                         </a>
                                         <button type="button" class="btn btn-secondary" title="Archive"
                                                 onclick="if(confirm('Are you sure you want to archive this resident?')) { document.getElementById('archive-form-{{ $resident->id }}').submit(); }">
-                                            <i class="bi bi-archive"></i>
+                                            <i class="bi bi-archive"></i> Archive
                                         </button>
                                         <form id="archive-form-{{ $resident->id }}" 
                                               action="{{ route('residents.archive', $resident) }}" 
@@ -182,5 +226,6 @@
             </div>
         @endif
     </div>
+</div>
 </div>
 @endsection

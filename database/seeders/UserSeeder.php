@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
 {
@@ -27,6 +28,38 @@ class UserSeeder extends Seeder
             $this->command->info('✓ Secretary account created');
         } else {
             $this->command->warn('⚠ Secretary account already exists');
+        }
+
+        if (!User::where('email', 'superadmin@pangi.gov')->exists()) {
+            $roleSuper = DB::getDriverName() === 'sqlite' ? 'staff' : 'super_admin';
+            User::create([
+                'name' => 'Super Admin',
+                'email' => 'superadmin@pangi.gov',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+                'role' => $roleSuper,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->command->info('✓ Super Admin account created');
+        } else {
+            $this->command->warn('⚠ Super Admin account already exists');
+        }
+
+        if (!User::where('email', 'calamityhead@pangi.gov')->exists()) {
+            $roleCalHead = DB::getDriverName() === 'sqlite' ? 'staff' : 'calamity_head';
+            User::create([
+                'name' => 'Calamity Head',
+                'email' => 'calamityhead@pangi.gov',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+                'role' => $roleCalHead,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->command->info('✓ Calamity Head account created');
+        } else {
+            $this->command->warn('⚠ Calamity Head account already exists');
         }
 
         // Create Staff accounts (limited access)

@@ -71,7 +71,7 @@
                 </p>
 
                 <div class="d-flex gap-2">
-                    <a href="{{ route('resident-transfers.show', $transfer) }}" class="btn btn-sm btn-info flex-fill">
+                    <a href="{{ route('resident-transfers.show', $transfer) }}" class="btn btn-sm btn-primary flex-fill">
                         <i class="bi bi-eye"></i> View Details
                     </a>
                     <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $transfer->id }}">
