@@ -35,6 +35,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 #Expose Render's required port 
 EXPOSE 1000
-
 # Start Apache 
 CMD ["apache2.foreground"]
