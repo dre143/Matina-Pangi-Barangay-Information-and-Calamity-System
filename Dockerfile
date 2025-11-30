@@ -1,48 +1,36 @@
-FROM php:8.2-apache
+# Stage 1 - Build Frontend (Vite)
+FROM node:18 AS frontend
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
+# Stage 2 - Backend (Laravel + PHP + Composer)
+FROM php:8.2-fpm AS backend
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev
+    git curl unzip libpq-dev libonig-dev libzip-dev zip \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip
 
-# Fix GD include paths for Debian
-RUN docker-php-ext-configure gd \
-    --with-jpeg=/usr/include \
-    --with-freetype=/usr/include/freetype2
-
-# Install all extensions
-RUN docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_mysql \
-    pdo_pgsql \
-    zip \
-    mbstring \
-    exif \
-    gd
-
-RUN a2enmod rewrite
-
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
- && sed -ri -e 's!<Directory /var/www/html>!<Directory /var/www/html/public>!g' /etc/apache2/apache2.conf
-
-COPY . /var/www/html
-
-WORKDIR /var/www/html
-
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
-    --no-dev \
-    --optimize-autoloader \
-    --no-interaction \
-    --prefer-dist
+WORKDIR /var/www
 
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Copy app files
+COPY . .
 
-EXPOSE 80
-CMD ["apache2-foreground"]
+# Copy built frontend from Stage 1
+COPY --from=frontend /app/public/dist ./public/dist
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Laravel setup
+RUN php artisan config:clear && \
+    php artisan route:clear && \
+    php artisan view:clear
+
+CMD ["php-fpm"]
