@@ -37,7 +37,7 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies (no scripts/plugins during build)
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_MEMORY_LIMIT=-1
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --no-plugins
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --no-plugins --ignore-platform-reqs
 
 # Copy app files
 COPY . .
