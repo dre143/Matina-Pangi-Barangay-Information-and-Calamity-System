@@ -6,6 +6,12 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
+# Stage 1.5 - Composer vendor install (no scripts/plugins)
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --no-plugins
+
 # Stage 2 - Backend (Laravel + PHP + Composer)
 FROM php:8.2-apache AS backend
 
@@ -39,6 +45,15 @@ COPY . .
 # Copy built frontend from Stage 1
 COPY --from=frontend /app/public/build ./public/build
 
+<<<<<<< HEAD
+=======
+# Copy vendor from Composer stage
+COPY --from=vendor /app/vendor ./vendor
+
+# Optional: ensure optimized autoload
+RUN composer dump-autoload --optimize --no-dev --no-interaction
+
+>>>>>>> 81747e3 (Dockerfile: use composer vendor stage, copy vendor, dump-autoload; keep Vite build)
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
