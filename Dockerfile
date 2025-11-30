@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -9,50 +9,46 @@ RUN apt-get update && apt-get install -y \
     zip \
     libpng-dev \
     libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    && docker-php-ext-configure gd \
-        --with-freetype=/usr/include/ \
-        --with-jpeg=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_mysql \
-        pdo_pgsql \
-        zip \
-        gd \
-        mbstring \
-        exif
+    libfreetype6-dev
+
+# Configure GD properly for Debian (PHP 8.x)
+RUN docker-php-ext-configure gd \
+    --with-freetype=/usr/include/freetype2 \
+    --with-jpeg=/usr/include
+
+# Install PHP extensions
+RUN docker-php-ext-install -j$(nproc) \
+    gd \
+    zip \
+    pdo \
+    pdo_mysql \
+    pdo_pgsql \
+    mbstring \
+    exif
 
 # Enable Apache rewrite
 RUN a2enmod rewrite
 
-# Change Apache root to /public
+# Set document root to /public
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
  && sed -ri -e 's!<Directory /var/www/html>!<Directory /var/www/html/public>!g' /etc/apache2/apache2.conf
 
 # Copy app
 COPY . /var/www/html
 
-# Create uploads folder
-RUN mkdir -p /var/www/html/public/uploads \
-    && chown -R www-data:www-data /var/www/html/public/uploads \
-    && chmod -R 775 /var/www/html/public/uploads
-
 WORKDIR /var/www/html
 
-# Copy composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install dependencies
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
-    --prefer-dist \
-    --no-scripts
+    --prefer-dist
 
-# Fix permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Storage permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
-
 CMD ["apache2-foreground"]
