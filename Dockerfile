@@ -17,6 +17,12 @@ RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' /e
  && sed -i 's#<Directory /var/www/>#<Directory /var/www/html/public/>#g' /etc/apache2/apache2.conf
 RUN sed -ri 's/AllowOverride\s+None/AllowOverride All/g' /etc/apache2/apache2.conf
 
+# Tune Apache to respect low DB connection limits
+RUN a2dismod mpm_event && a2enmod mpm_prefork \
+ && printf "<IfModule mpm_prefork_module>\nStartServers 2\nMinSpareServers 2\nMaxSpareServers 2\nMaxRequestWorkers 2\nMaxConnectionsPerChild 1000\n</IfModule>\n" > /etc/apache2/conf-available/mpm-tune.conf \
+ && printf "KeepAlive On\nMaxKeepAliveRequests 50\nKeepAliveTimeout 2\n" > /etc/apache2/conf-available/keepalive-tune.conf \
+ && a2enconf mpm-tune keepalive-tune
+
 # Copy application
 COPY . /var/www/html
 
@@ -24,9 +30,13 @@ COPY . /var/www/html
 RUN mkdir -p /var/www/html/public/uploads \
     /var/www/html/storage/framework/sessions \
     /var/www/html/storage/framework/views \
+    /var/www/html/storage/framework/cache \
     /var/www/html/storage/framework/cache/data \
-    && chown -R www-data:www-data /var/www/html/public/uploads /var/www/html/storage \
-    && chmod -R 775 /var/www/html/public/uploads /var/www/html/storage
+    /var/www/html/storage/logs \
+    /var/www/html/bootstrap/cache \
+    && touch /var/www/html/storage/logs/laravel.log \
+    && chown -R www-data:www-data /var/www/html/public/uploads /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/public/uploads /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Set working directory
 WORKDIR /var/www/html
