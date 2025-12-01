@@ -1,5 +1,5 @@
 #Use official Php with Apache
-From php:8.2-apache
+FROM php:8.2-apache
 
 #Install required extensions for Laravel
 RUN apt-get update && apt-get install -y \
@@ -11,7 +11,7 @@ RUN a2enmod rewrite
 
 # Set Apache DocumentRoot to /var/www/html/public (Laravel entry point)
 RUN sed -i 's│/var/www/html/var/www/html/publics│g' /etc/apache2/sites-available/000-default.cconf \
- && sed -i 's│/var/www/html/var/www/html/publics│g' /etc/apache2/apache2.conf
+ && sed -i 's│/var/www/html/publics│g' /etc/apache2/apache2.conf
 
 #Copy APP Code
 COPY . /var/www/html
