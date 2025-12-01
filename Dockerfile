@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Set Apache DocumentRoot to /var/www/html/public (Laravel entry point)
-RUN sed -i 's│/var/www/html/var/www/html/public│g' /etc/apache2/sites-available/000-default.conf \
- && sed -i 's│/var/www/html/public│g' /etc/apache2/apache2.conf
+RUN sed -i 's│/var/www/html/var/www/public│g' /etc/apache2/sites-available/000-default.conf\
+&& sed -i 's│/var/www/html/public│g' /etc/apache2/apache2.conf
 
 #Copy APP Code
 COPY . /var/www/html
