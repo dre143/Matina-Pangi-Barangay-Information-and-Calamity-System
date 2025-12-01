@@ -15,6 +15,7 @@ RUN a2enmod rewrite
 # Set proper DocumentRoot
 RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' /etc/apache2/sites-available/000-default.conf \
  && sed -i 's#<Directory /var/www/>#<Directory /var/www/html/public/>#g' /etc/apache2/apache2.conf
+RUN sed -ri 's/AllowOverride\s+None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # Copy application
 COPY . /var/www/html
