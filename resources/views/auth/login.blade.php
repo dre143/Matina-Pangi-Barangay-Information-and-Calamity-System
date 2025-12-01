@@ -6,6 +6,8 @@
     <title>Login - Barangay Information System of Matina Pangi: A Focus on Health and Assistance Services with Resident Profiling and Monitoring</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <meta name="theme-color" content="#3AB795">
     <style>
         * {
             margin: 0;
@@ -366,6 +368,13 @@
         loginForm.addEventListener('submit', function(){
             loginBtn.classList.add('loading');
         });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js');
+            });
+        }
     </script>
 </body>
 </html>

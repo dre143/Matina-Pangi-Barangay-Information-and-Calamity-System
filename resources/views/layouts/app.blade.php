@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ time() }}">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <meta name="theme-color" content="#3AB795">
     <style>
         /* Additional inline styles for immediate effect */
         body {
@@ -378,6 +380,48 @@
                 sessionStorage.removeItem('scrollPosition');
             }
         });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js');
+            });
+        }
+    </script>
+    <script>
+        (function(){
+            function hasFileInput(form){ return !!form.querySelector('input[type="file"]'); }
+            function formEntries(form){ return Array.from(new FormData(form).entries()); }
+            function enqueueForm(form){
+                var payload = {
+                    url: form.action || window.location.href,
+                    method: (form.method || 'POST').toUpperCase(),
+                    entries: formEntries(form),
+                    enctype: (form.enctype || 'application/x-www-form-urlencoded').toLowerCase()
+                };
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'enqueue', payload: payload });
+                }
+            }
+            document.addEventListener('submit', function(e){
+                var form = e.target;
+                if (!(form instanceof HTMLFormElement)) return;
+                var method = (form.method || 'GET').toUpperCase();
+                if (method !== 'POST') return;
+                if (navigator.onLine) return;
+                if (hasFileInput(form)) return;
+                e.preventDefault();
+                enqueueForm(form);
+                alert('Saved offline. Will sync when online.');
+                window.location.href = '/';
+            });
+            window.addEventListener('online', function(){
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'sync' });
+                }
+            });
+        })();
     </script>
     
     <style>
