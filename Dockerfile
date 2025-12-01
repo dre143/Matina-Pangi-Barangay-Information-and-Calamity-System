@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
 #Enable Apache mod_rewrite (needed for laravel routes)
 RUN a2enmod rewrite
 
-# Set Apache DocumentRoot to /var/www/html/public (Laravel entry point)
-RUN sed -i 's│/var/www/html│/var/www/public│g' /etc/apache2/sites-available/000-default.conf\
+# Set Apache DocumentRoot ot /var/www/html/public 
+RUN sed -i 's│/var/www/html│/var/www/public│g' /etc/apache2/sites-available/000-default.conf \
 && sed -i 's│/var/www/html│public│g' /etc/apache2/apache2.conf
 
 #Copy APP Code
