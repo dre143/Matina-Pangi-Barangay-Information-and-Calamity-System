@@ -379,6 +379,7 @@
                 window.scrollTo(0, parseInt(savedPosition));
                 sessionStorage.removeItem('scrollPosition');
             }
+            try { sessionStorage.setItem('lastUrl', window.location.pathname + window.location.search); } catch (e) {}
         });
     </script>
 
@@ -404,6 +405,16 @@
                     navigator.serviceWorker.controller.postMessage({ type: 'enqueue', payload: payload });
                 }
             }
+            document.addEventListener('submit', function(e){
+                var form = e.target;
+                if (!(form instanceof HTMLFormElement)) return;
+                var action = form.action || '';
+                if (action.endsWith('/logout')) {
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({ type: 'clearCaches' });
+                    }
+                }
+            });
             document.addEventListener('submit', function(e){
                 var form = e.target;
                 if (!(form instanceof HTMLFormElement)) return;

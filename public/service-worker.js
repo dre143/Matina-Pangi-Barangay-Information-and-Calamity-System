@@ -28,6 +28,11 @@ self.addEventListener('message', event => {
   if (data.type === 'sync') {
     event.waitUntil(flushQueue());
   }
+  if (data.type === 'clearCaches') {
+    event.waitUntil(
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+    );
+  }
 });
 
 self.addEventListener('fetch', event => {
@@ -49,7 +54,16 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(() => caches.match(OFFLINE_URL))
+      caches.match(req).then(cached => {
+        return fetch(req).then(resp => {
+          const ct = resp.headers.get('content-type') || '';
+          const clone = resp.clone();
+          if (resp.ok && ct.includes('text/html') && url.pathname !== '/login') {
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          }
+          return resp;
+        }).catch(() => cached || caches.match(OFFLINE_URL));
+      })
     );
     return;
   }

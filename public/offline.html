@@ -23,7 +23,12 @@
   }
   function retry(){
     if(navigator.onLine){ triggerSync(); goHome(); }
-    else { history.back(); }
+    else {
+      var last = null;
+      try { last = sessionStorage.getItem('lastUrl'); } catch(e){}
+      if (last) { window.location.href = last; }
+      else { history.back(); }
+    }
   }
   if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); retry(); }); }
   window.addEventListener('online', function(){ triggerSync(); goHome(); });
