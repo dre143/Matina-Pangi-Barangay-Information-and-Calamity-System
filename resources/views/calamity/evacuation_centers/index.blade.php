@@ -63,9 +63,8 @@
             <td>{{ is_array($center->facilities) ? implode(', ', $center->facilities) : $center->facilities }}</td>
             <td>
               <div class="btn-group btn-group-sm">
-                <a href="{{ route('evacuation-centers.show',$center) }}" class="btn btn-primary"><i class="bi bi-eye"></i> View</a>
-                <a href="{{ route('evacuation-centers.edit',$center) }}" class="btn btn-warning"><i class="bi bi-pencil"></i> Edit</a>
-                <form action="{{ route('evacuation-centers.destroy',$center) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this center?')">
+                <a href="{{ route('web.evacuation-centers.edit',$center) }}" class="btn btn-warning"><i class="bi bi-pencil"></i> Edit</a>
+                <form action="{{ route('web.evacuation-centers.destroy',$center) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this center?')">
                   @csrf
                   @method('DELETE')
                   <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>

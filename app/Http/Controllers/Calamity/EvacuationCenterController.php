@@ -24,7 +24,11 @@ class EvacuationCenterController extends Controller
             'facilities' => 'nullable|array'
         ]);
         $center = EvacuationCenter::create($data);
-        return new EvacuationCenterResource($center);
+        if ($request->expectsJson()) {
+            return new EvacuationCenterResource($center);
+        }
+        return redirect()->route('web.evacuation-centers.index')
+            ->with('success', 'Evacuation center added successfully');
     }
 
     public function show(EvacuationCenter $evacuation_center)
@@ -42,12 +46,20 @@ class EvacuationCenterController extends Controller
             'facilities' => 'nullable|array'
         ]);
         $evacuation_center->update($data);
-        return new EvacuationCenterResource($evacuation_center);
+        if ($request->expectsJson()) {
+            return new EvacuationCenterResource($evacuation_center);
+        }
+        return redirect()->route('web.evacuation-centers.index')
+            ->with('success', 'Evacuation center updated successfully');
     }
 
     public function destroy(EvacuationCenter $evacuation_center)
     {
         $evacuation_center->delete();
-        return response()->json(null, 204);
+        if (request()->expectsJson()) {
+            return response()->json(null, 204);
+        }
+        return redirect()->route('web.evacuation-centers.index')
+            ->with('success', 'Evacuation center deleted successfully');
     }
 }

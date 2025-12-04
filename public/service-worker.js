@@ -15,7 +15,10 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME ? caches.delete(k) : Promise.resolve())))
+    Promise.all([
+      caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME ? caches.delete(k) : Promise.resolve()))),
+      flushQueue().catch(() => {})
+    ])
   );
   self.clients.claim();
 });
@@ -28,6 +31,12 @@ self.addEventListener('message', event => {
   if (data.type === 'sync') {
     event.waitUntil(flushQueue());
   }
+  if (data.type === 'clearCaches') {
+    event.waitUntil(
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {})
+    );
+  }
+});
   if (data.type === 'clearCaches') {
     event.waitUntil(
       caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))

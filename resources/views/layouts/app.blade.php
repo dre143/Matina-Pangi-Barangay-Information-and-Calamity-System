@@ -385,9 +385,7 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/service-worker.js');
-            });
+            navigator.serviceWorker.register('/service-worker.js');
         }
     </script>
     <script>
@@ -401,8 +399,14 @@
                     entries: formEntries(form),
                     enctype: (form.enctype || 'application/x-www-form-urlencoded').toLowerCase()
                 };
-                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.controller.postMessage({ type: 'enqueue', payload: payload });
+                if (navigator.serviceWorker) {
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({ type: 'enqueue', payload: payload });
+                    } else {
+                        navigator.serviceWorker.getRegistration().then(function(reg){
+                            if (reg && reg.active) reg.active.postMessage({ type: 'enqueue', payload: payload });
+                        });
+                    }
                 }
             }
             document.addEventListener('submit', function(e){
@@ -421,7 +425,6 @@
                 var method = (form.method || 'GET').toUpperCase();
                 if (method !== 'POST') return;
                 if (navigator.onLine) return;
-                if (hasFileInput(form)) return;
                 e.preventDefault();
                 enqueueForm(form);
                 alert('Saved offline. Will sync when online.');
@@ -430,6 +433,26 @@
             window.addEventListener('online', function(){
                 if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                     navigator.serviceWorker.controller.postMessage({ type: 'sync' });
+                }
+            });
+            if (navigator.onLine && navigator.serviceWorker) {
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'sync' });
+                } else {
+                    navigator.serviceWorker.getRegistration().then(function(reg){
+                        if (reg && reg.active) reg.active.postMessage({ type: 'sync' });
+                    });
+                }
+            }
+            document.addEventListener('visibilitychange', function(){
+                if (document.visibilityState === 'visible' && navigator.onLine && navigator.serviceWorker) {
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({ type: 'sync' });
+                    } else {
+                        navigator.serviceWorker.getRegistration().then(function(reg){
+                            if (reg && reg.active) reg.active.postMessage({ type: 'sync' });
+                        });
+                    }
                 }
             });
         })();

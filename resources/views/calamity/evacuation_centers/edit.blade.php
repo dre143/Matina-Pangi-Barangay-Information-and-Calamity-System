@@ -7,14 +7,14 @@
 <nav aria-label="breadcrumb" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('evacuation-centers.index') }}">Evacuation Centers</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('web.evacuation-centers.index') }}">Evacuation Centers</a></li>
     <li class="breadcrumb-item active" aria-current="page">Edit</li>
   </ol>
 </nav>
 
 <div class="card">
   <div class="card-body">
-    <form method="POST" action="{{ route('evacuation-centers.update', $evacuation_center) }}">
+    <form method="POST" action="{{ route('web.evacuation-centers.update', $evacuation_center) }}">
       @csrf
       @method('PUT')
       <div class="row g-3">

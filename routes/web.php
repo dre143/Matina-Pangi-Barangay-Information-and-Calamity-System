@@ -193,6 +193,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
         Route::name('web.')->group(function () {
             Route::view('/evacuation-centers', 'calamity.evacuation_centers.index')->name('evacuation-centers.index');
             Route::view('/evacuation-centers/create', 'calamity.evacuation_centers.create')->name('evacuation-centers.create');
+            Route::get('/evacuation-centers/{evacuation_center}/edit', function (\App\Models\EvacuationCenter $evacuation_center) {
+                return view('calamity.evacuation_centers.edit', compact('evacuation_center'));
+            })->name('evacuation-centers.edit');
             Route::get('/relief-items', [\App\Http\Controllers\Calamity\ReliefItemController::class, 'index'])->name('relief-items.index');
             Route::get('/relief-items/create', [\App\Http\Controllers\Calamity\ReliefItemController::class, 'create'])->name('relief-items.create');
             Route::get('/relief-items/{relief_item}', [\App\Http\Controllers\Calamity\ReliefItemController::class, 'show'])->name('relief-items.show');
@@ -215,6 +218,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
         });
 
         // Calamity Submissions
+        Route::post('/evacuation-centers', [\App\Http\Controllers\Calamity\EvacuationCenterController::class, 'store'])
+            ->name('web.evacuation-centers.store');
+        Route::put('/evacuation-centers/{evacuation_center}', [\App\Http\Controllers\Calamity\EvacuationCenterController::class, 'update'])
+            ->name('web.evacuation-centers.update');
+        Route::delete('/evacuation-centers/{evacuation_center}', [\App\Http\Controllers\Calamity\EvacuationCenterController::class, 'destroy'])
+            ->name('web.evacuation-centers.destroy');
         Route::post('/damage-assessments', [\App\Http\Controllers\Calamity\DamageAssessmentController::class, 'storeWeb'])
             ->name('web.damage-assessments.store');
         Route::put('/damage-assessments/{damage_assessment}', [\App\Http\Controllers\Calamity\DamageAssessmentController::class, 'updateWeb'])

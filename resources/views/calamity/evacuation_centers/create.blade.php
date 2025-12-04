@@ -7,14 +7,14 @@
 <nav aria-label="breadcrumb" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('evacuation-centers.index') }}">Evacuation Centers</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('web.evacuation-centers.index') }}">Evacuation Centers</a></li>
     <li class="breadcrumb-item active" aria-current="page">Add</li>
   </ol>
 </nav>
 
 <div class="card">
   <div class="card-body">
-    <form method="POST" action="{{ route('evacuation-centers.store') }}">
+    <form method="POST" action="{{ route('web.evacuation-centers.store') }}">
       @csrf
       <div class="row g-3">
         <div class="col-md-6">
@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">
-        <a href="{{ route('evacuation-centers.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('web.evacuation-centers.index') }}" class="btn btn-secondary">Cancel</a>
         <button class="btn btn-primary" type="submit">Submit</button>
       </div>
     </form>
