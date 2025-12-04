@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mpangi-cache-v1';
+const CACHE_NAME = 'mpangi-cache-v2';
 const OFFLINE_URL = '/offline.html';
 const DB_NAME = 'mpangi-queue';
 const STORE = 'requests';
@@ -7,7 +7,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll([
       OFFLINE_URL,
-      '/',
       '/logo.png'
     ]))
   );
