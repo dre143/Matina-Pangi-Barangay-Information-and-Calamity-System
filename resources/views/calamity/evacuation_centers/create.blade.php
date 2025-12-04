@@ -27,7 +27,7 @@
         </div>
         <div class="col-md-3">
           <label class="form-label">Capacity</label>
-          <input type="number" name="capacity" class="form-control" min="0" value="{{ old('capacity') }}">
+          <input type="number" name="capacity" class="form-control" min="0" required value="{{ old('capacity', 0) }}">
         </div>
         <div class="col-md-3">
           <label class="form-label">Current Occupancy</label>
