@@ -191,8 +191,27 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
         // Calamity Submodule Views (Web-only)
         Route::name('web.')->group(function () {
-            Route::view('/evacuation-centers', 'calamity.evacuation_centers.index')->name('evacuation-centers.index');
+            Route::get('/evacuation-centers', function (\Illuminate\Http\Request $request) {
+                $query = \App\Models\EvacuationCenter::query()->latest();
+                if ($request->filled('search')) {
+                    $s = '%' . trim($request->get('search')) . '%';
+                    $query->where(function ($q) use ($s) {
+                        $q->where('name', 'like', $s)->orWhere('location', 'like', $s);
+                    });
+                }
+                if ($request->filled('capacity_min')) {
+                    $query->where('capacity', '>=', (int) $request->get('capacity_min'));
+                }
+                if ($request->filled('occupancy_max')) {
+                    $query->where('current_occupancy', '<=', (int) $request->get('occupancy_max'));
+                }
+                $centers = $query->paginate(20)->withQueryString();
+                return view('calamity.evacuation_centers.index', compact('centers'));
+            })->name('evacuation-centers.index');
             Route::view('/evacuation-centers/create', 'calamity.evacuation_centers.create')->name('evacuation-centers.create');
+            Route::get('/evacuation-centers/{evacuation_center}', function (\App\Models\EvacuationCenter $evacuation_center) {
+                return view('calamity.evacuation_centers.show', compact('evacuation_center'));
+            })->name('evacuation-centers.show');
             Route::get('/evacuation-centers/{evacuation_center}/edit', function (\App\Models\EvacuationCenter $evacuation_center) {
                 return view('calamity.evacuation_centers.edit', compact('evacuation_center'));
             })->name('evacuation-centers.edit');

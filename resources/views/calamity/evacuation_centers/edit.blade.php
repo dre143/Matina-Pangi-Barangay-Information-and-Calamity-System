@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">
-        <a href="{{ route('evacuation-centers.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('web.evacuation-centers.index') }}" class="btn btn-secondary">Cancel</a>
         <button class="btn btn-primary" type="submit">Save</button>
       </div>
     </form>
