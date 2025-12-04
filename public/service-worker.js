@@ -36,9 +36,9 @@ self.addEventListener('message', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
-  if (req.method === 'POST' && new URL(req.url).origin === self.location.origin) {
+  if (req.method === 'POST' && url.origin === self.location.origin) {
     if (url.pathname === '/login' || url.pathname === '/logout') {
-      return; // let browser handle auth endpoints to avoid CSRF/session issues
+      return;
     }
     event.respondWith(
       fetch(req).catch(() => req.clone().text().then(body => {
@@ -52,22 +52,19 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   if (req.mode === 'navigate') {
     event.respondWith(
-      caches.match(req).then(cached => {
-        return fetch(req).then(resp => {
-          const clone = resp.clone();
-          if (resp.ok) caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-          return resp;
-        }).catch(() => cached || caches.match(OFFLINE_URL));
-      })
+      fetch(req).catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }
-  if (new URL(req.url).origin === self.location.origin) {
+  if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(req).then(cached => {
         const fetchPromise = fetch(req).then(resp => {
+          const ct = resp.headers.get('content-type') || '';
           const clone = resp.clone();
-          if (resp.ok) caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          if (resp.ok && !ct.includes('text/html')) {
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          }
           return resp;
         }).catch(() => cached);
         return cached || fetchPromise;
