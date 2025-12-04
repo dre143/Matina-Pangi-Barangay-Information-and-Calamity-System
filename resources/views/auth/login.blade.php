@@ -369,6 +369,7 @@
             loginBtn.classList.add('loading');
         });
     </script>
+    @if(app()->environment('local'))
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -376,5 +377,6 @@
             });
         }
     </script>
+    @endif
 </body>
 </html>
