@@ -16,6 +16,13 @@
   <a href="{{ route('web.evacuation-centers.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add New</a>
 </div>
 
+@if(session('success'))
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+@endif
+
 <form method="GET" action="{{ route('web.evacuation-centers.index') }}" class="card mb-4">
   <div class="card-body">
     <div class="row g-3">
