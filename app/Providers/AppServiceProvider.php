@@ -23,9 +23,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         if ($this->app->environment('production')) {
-            URL::forceScheme('https');
-            Config::set('session.domain', request()->getHost());
-            Config::set('session.secure', true);
+            $scheme = parse_url(config('app.url'), PHP_URL_SCHEME) ?: 'http';
+            if ($scheme === 'https') {
+                URL::forceScheme('https');
+                Config::set('session.domain', request()->getHost());
+                Config::set('session.secure', true);
+            }
         }
         
     }

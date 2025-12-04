@@ -37,11 +37,29 @@ self.addEventListener('message', event => {
     );
   }
 });
+  if (data.type === 'clearCaches') {
+    event.waitUntil(
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+    );
+  }
+});
 
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
-  // Do not intercept POST requests; let the browser and server handle form submissions normally.
+  if (req.method === 'POST' && url.origin === self.location.origin) {
+    if (url.pathname === '/login' || url.pathname === '/logout') {
+      return;
+    }
+    event.respondWith(
+      fetch(req).catch(() => req.clone().text().then(body => {
+        const contentType = req.headers.get('content-type') || 'application/x-www-form-urlencoded';
+        const payload = { url: req.url, method: 'POST', body, contentType };
+        return enqueue(payload).then(() => new Response(JSON.stringify({ queued: true }), { status: 202, headers: { 'Content-Type': 'application/json' } }));
+      }))
+    );
+    return;
+  }
   if (req.method !== 'GET') return;
   if (req.mode === 'navigate') {
     event.respondWith(
