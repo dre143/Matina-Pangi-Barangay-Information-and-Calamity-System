@@ -8,8 +8,6 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME).then(cache => cache.addAll([
       OFFLINE_URL,
       '/',
-      '/login',
-      '/dashboard',
       '/logo.png'
     ]))
   );
