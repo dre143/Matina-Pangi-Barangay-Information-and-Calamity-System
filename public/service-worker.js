@@ -35,7 +35,11 @@ self.addEventListener('message', event => {
 
 self.addEventListener('fetch', event => {
   const req = event.request;
+  const url = new URL(req.url);
   if (req.method === 'POST' && new URL(req.url).origin === self.location.origin) {
+    if (url.pathname === '/login' || url.pathname === '/logout') {
+      return; // let browser handle auth endpoints to avoid CSRF/session issues
+    }
     event.respondWith(
       fetch(req).catch(() => req.clone().text().then(body => {
         const contentType = req.headers.get('content-type') || 'application/x-www-form-urlencoded';
