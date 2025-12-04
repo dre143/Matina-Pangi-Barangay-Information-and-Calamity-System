@@ -425,7 +425,7 @@
                 e.preventDefault();
                 enqueueForm(form);
                 alert('Saved offline. Will sync when online.');
-                window.location.href = '/';
+                try { form.reset(); } catch (e) {}
             });
             window.addEventListener('online', function(){
                 if (navigator.serviceWorker && navigator.serviceWorker.controller) {
