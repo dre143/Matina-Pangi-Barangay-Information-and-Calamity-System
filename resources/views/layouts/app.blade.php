@@ -382,7 +382,6 @@
         });
     </script>
 
-    @if(app()->environment('local'))
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -390,7 +389,6 @@
             });
         }
     </script>
-    @endif
     <script>
         (function(){
             function hasFileInput(form){ return !!form.querySelector('input[type="file"]'); }

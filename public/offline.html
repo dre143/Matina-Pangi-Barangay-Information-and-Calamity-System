@@ -16,9 +16,17 @@
 (function(){
   var btn=document.getElementById('retryBtn');
   function goHome(){ window.location.href='/'; }
-  function tryReload(){ if(navigator.onLine){ goHome(); } else { window.location.reload(); } }
-  if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); tryReload(); }); }
-  window.addEventListener('online', goHome);
+  function triggerSync(){
+    if(navigator.serviceWorker && navigator.serviceWorker.controller){
+      navigator.serviceWorker.controller.postMessage({ type: 'sync' });
+    }
+  }
+  function retry(){
+    if(navigator.onLine){ triggerSync(); goHome(); }
+    else { history.back(); }
+  }
+  if(btn){ btn.addEventListener('click', function(e){ e.preventDefault(); retry(); }); }
+  window.addEventListener('online', function(){ triggerSync(); goHome(); });
 })();
 </script>
 </div>
