@@ -5,7 +5,13 @@ const STORE = 'requests';
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll([OFFLINE_URL, '/', '/login']))
+    caches.open(CACHE_NAME).then(cache => cache.addAll([
+      OFFLINE_URL,
+      '/',
+      '/login',
+      '/dashboard',
+      '/logo.png'
+    ]))
   );
   self.skipWaiting();
 });
@@ -143,25 +149,3 @@ async function flushQueue() {
     } catch (e) {}
   }
 }
-self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).catch(() => caches.match(OFFLINE_URL))
-    );
-    return;
-  }
-  if (new URL(req.url).origin === self.location.origin) {
-    event.respondWith(
-      caches.match(req).then(cached => {
-        const fetchPromise = fetch(req).then(resp => {
-          const clone = resp.clone();
-          if (resp.ok) caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-          return resp;
-        }).catch(() => cached);
-        return cached || fetchPromise;
-      })
-    );
-  }
-});
