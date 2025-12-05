@@ -494,16 +494,16 @@ class HouseholdController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        $dup = Resident::query()
-            ->whereRaw('LOWER(first_name)=?', [strtolower($validated['first_name'])])
-            ->whereRaw('LOWER(last_name)=?', [strtolower($validated['last_name'])]);
-        if (!empty($validated['middle_name'])) {
-            $dup->whereRaw('LOWER(middle_name)=?', [strtolower($validated['middle_name'])]);
-        }
-        if (!empty($validated['suffix'])) {
-            $dup->whereRaw('LOWER(suffix)=?', [strtolower($validated['suffix'])]);
-        }
-        if ($dup->exists()) {
+        $nameInput = strtolower(trim(implode(' ', array_filter([
+            trim($validated['first_name']),
+            isset($validated['middle_name']) ? trim($validated['middle_name']) : '',
+            trim($validated['last_name']),
+            isset($validated['suffix']) ? trim($validated['suffix']) : '',
+        ], fn($v) => $v !== ''))));
+        $dupExists = Resident::query()
+            ->whereRaw("LOWER(TRIM(CONCAT_WS(' ', first_name, middle_name, last_name, suffix))) = ?", [$nameInput])
+            ->exists();
+        if ($dupExists) {
             return back()->withErrors(['duplicate' => 'A resident with the same name already exists.'])->withInput();
         }
 
