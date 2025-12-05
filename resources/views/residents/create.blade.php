@@ -6,6 +6,11 @@
     
     <div class="card">
         <div class="card-body">
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    {{ $errors->first() }}
+                </div>
+            @endif
             <form action="{{ route('residents.store') }}" method="POST">
                 @csrf
                 

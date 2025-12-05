@@ -16,6 +16,11 @@
             <h5 class="mb-0">Household Information</h5>
         </div>
         <div class="card-body">
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    {{ $errors->first() }}
+                </div>
+            @endif
             <div class="row">
                 <div class="col-md-6">
                     <p><strong>Household ID:</strong> {{ $household->household_id }}</p>
