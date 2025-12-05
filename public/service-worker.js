@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mpangi-cache-v3';
+const CACHE_NAME = 'mpangi-cache-v4';
 const OFFLINE_URL = '/offline.html';
 const DB_NAME = 'mpangi-queue';
 const STORE = 'requests';
@@ -46,16 +46,7 @@ self.addEventListener('fetch', event => {
   }
   if (req.mode === 'navigate') {
     event.respondWith(
-      caches.match(req).then(cached => {
-        return fetch(req).then(resp => {
-          const ct = resp.headers.get('content-type') || '';
-          const clone = resp.clone();
-          if (resp.ok && ct.includes('text/html') && url.pathname !== '/login') {
-            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-          }
-          return resp;
-        }).catch(() => cached || caches.match(OFFLINE_URL));
-      })
+      fetch(req).catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }
